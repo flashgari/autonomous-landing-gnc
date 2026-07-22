@@ -26,3 +26,10 @@ Fast review guide for the autonomous landing GNC simulator.
 
 **Upper-division physical interpretation:** The writeup connects trajectory results to `m x_ddot`, `m z_ddot`, mass depletion, drag, wind-relative velocity, TVC torque, and acceleration-command feasibility.
 
+## 4. Monte Carlo Landing Dispersion
+
+![Monte Carlo landing dispersion](figures/monte_carlo_landing_dispersion.svg)
+
+**What it shows:** Terminal landing error and touchdown vertical velocity for 200 randomized descent cases.
+
+**Upper-division physical interpretation:** The footprint shows whether uncertainty pushes the vehicle outside terminal constraints. The current baseline is not propellant-limited; it is guidance-limited. Vertical-speed failures imply insufficient terminal energy removal, while pad misses imply insufficient lateral divert correction. The coupling is fundamental: lateral correction requires tilt, and tilt reduces vertical thrust projection through `T cos(theta)`.

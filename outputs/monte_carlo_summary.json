@@ -1,0 +1,18 @@
+{
+  "seed": 4242,
+  "num_cases": 200,
+  "successes": 93,
+  "success_rate": 0.465,
+  "failure_modes": {
+    "pad_miss": 50,
+    "success": 93,
+    "vertical_speed": 57
+  },
+  "p50_abs_landing_error_m": 2.389067560903439,
+  "p95_abs_landing_error_m": 5.2575015325263115,
+  "p50_touchdown_speed_mps": 2.435295461815192,
+  "p95_touchdown_speed_mps": 2.65867053081052,
+  "min_propellant_remaining_kg": 4153.511207558568,
+  "max_abs_tilt_deg": 6.061346060096716,
+  "max_abs_gimbal_deg": 5.193960509846963
+}

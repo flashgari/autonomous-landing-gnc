@@ -24,12 +24,20 @@ def default_initial_state(vehicle: Vehicle) -> State:
     )
 
 
-def run_simulation(duration_s=45.0, dt_s=0.05):
-    vehicle = Vehicle()
-    env = Environment()
-    guidance = Guidance()
-    attitude = AttitudeControl()
-    state = default_initial_state(vehicle)
+def run_simulation(
+    duration_s=45.0,
+    dt_s=0.05,
+    vehicle: Vehicle | None = None,
+    env: Environment | None = None,
+    guidance: Guidance | None = None,
+    attitude: AttitudeControl | None = None,
+    initial_state: State | None = None,
+):
+    vehicle = vehicle or Vehicle()
+    env = env or Environment()
+    guidance = guidance or Guidance()
+    attitude = attitude or AttitudeControl()
+    state = initial_state or default_initial_state(vehicle)
     rows = []
 
     n = int(duration_s / dt_s) + 1
@@ -48,7 +56,7 @@ def run_simulation(duration_s=45.0, dt_s=0.05):
         "environment": asdict(env),
         "guidance": asdict(guidance),
         "attitude_control": asdict(attitude),
-        "initial_state": asdict(default_initial_state(vehicle)),
+        "initial_state": asdict(initial_state or default_initial_state(vehicle)),
     }
     return rows, metrics, config
 

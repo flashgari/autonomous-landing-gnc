@@ -17,12 +17,12 @@ Create a zero-cost software project that demonstrates reusable-launch-vehicle la
 
 ## Week 2 Robustness
 
-- randomized initial position/velocity dispersions
-- randomized wind dispersions
-- randomized mass/thrust/drag uncertainty
-- Monte Carlo landing success metrics
-- landing footprint plot
-- physical interpretation of failure modes
+- [x] randomized initial position/velocity dispersions
+- [x] randomized wind dispersions
+- [x] randomized mass/thrust/drag uncertainty
+- [x] Monte Carlo landing success metrics
+- [x] landing footprint plot
+- [x] physical interpretation of failure modes
 
 ## Week 3 Navigation
 
@@ -46,4 +46,3 @@ Create a zero-cost software project that demonstrates reusable-launch-vehicle la
 - complete physics writeup
 - animation and Monte Carlo visuals
 - final engineering narrative
-

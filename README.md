@@ -24,6 +24,7 @@ The initial baseline is a 2D powered-landing simulation with a successful nomina
 | SVG plotting pipeline | complete | [scripts/plot_nominal_landing.py](scripts/plot_nominal_landing.py) |
 | Landing animation | complete | [media/nominal_landing_animation.html](media/nominal_landing_animation.html) |
 | Physics writeup | complete | [docs/flight_physics.md](docs/flight_physics.md) |
+| Monte Carlo robustness | complete | [docs/monte_carlo_robustness.md](docs/monte_carlo_robustness.md) |
 | Tests | complete | [tests/](tests/) |
 
 ## Visual Evidence
@@ -46,6 +47,14 @@ The animation shows why landing GNC is a coupled problem: body tilt creates hori
 
 For a fast visual review, open [FIGURE_INDEX.md](FIGURE_INDEX.md).
 
+### Monte Carlo Landing Dispersion
+
+![Monte Carlo landing dispersion](figures/monte_carlo_landing_dispersion.svg)
+
+The robustness campaign shows the baseline controller's real limitation. Out of 200 randomized dispersions, the current guidance law succeeds in 46.5% of cases. Failures are dominated by vertical-speed misses and pad misses, not propellant depletion.
+
+Upper-division interpretation: this is the expected next layer after a nominal landing. A single successful trajectory does not prove a landing controller is robust. The Monte Carlo footprint shows how uncertainty in initial state, wind, drag, thrust, and mass maps into terminal constraint violations. The dominant trade is lateral divert versus vertical thrust margin: more tilt helps remove crossrange error, but it reduces `T cos(theta)` available for braking.
+
 ## Baseline Result
 
 The nominal run currently lands with:
@@ -67,6 +76,8 @@ This is a first baseline, not the final project. The next steps are to add navig
 python3 scripts/run_nominal_landing.py
 python3 scripts/plot_nominal_landing.py
 python3 scripts/make_landing_animation.py
+python3 scripts/run_monte_carlo.py
+python3 scripts/plot_monte_carlo.py
 python3 -m unittest discover tests
 ```
 
@@ -78,6 +89,9 @@ outputs/nominal_landing_metrics.json
 outputs/nominal_landing_config.json
 figures/nominal_landing_summary.svg
 media/nominal_landing_animation.html
+outputs/monte_carlo_landing.csv
+outputs/monte_carlo_summary.json
+figures/monte_carlo_landing_dispersion.svg
 ```
 
 ## Repository Layout
@@ -101,7 +115,7 @@ tests/         unit tests
 - [x] Landing animation
 - [x] Upper-division physics writeup
 - [x] Figure index
-- [ ] Monte Carlo dispersion campaign
+- [x] Monte Carlo dispersion campaign
 - [ ] Navigation sensor noise and estimator
 - [ ] LQR/MPC-inspired terminal controller comparison
 - [ ] Landing corridor and constraint visualization

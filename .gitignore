@@ -10,3 +10,5 @@ outputs/*.json
 !outputs/nominal_landing.csv
 !outputs/nominal_landing_metrics.json
 !outputs/nominal_landing_config.json
+!outputs/monte_carlo_landing.csv
+!outputs/monte_carlo_summary.json
