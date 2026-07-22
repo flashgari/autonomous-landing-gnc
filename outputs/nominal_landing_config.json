@@ -1,0 +1,43 @@
+{
+  "vehicle": {
+    "dry_mass_kg": 18000.0,
+    "propellant_mass_kg": 7000.0,
+    "max_thrust_n": 760000.0,
+    "min_throttle": 0.38,
+    "max_gimbal_rad": 0.2,
+    "isp_s": 282.0,
+    "inertia_kg_m2": 1700000.0,
+    "engine_moment_arm_m": 15.0,
+    "rotational_damping_nms": 200000.0,
+    "reference_area_m2": 10.0,
+    "drag_coefficient": 0.55
+  },
+  "environment": {
+    "gravity_mps2": 9.80665,
+    "air_density_kg_m3": 0.65,
+    "wind_x_mps": 8.0
+  },
+  "guidance": {
+    "vertical_decel_mps2": 2.2,
+    "terminal_descent_mps": 0.8,
+    "lateral_kp": 0.03,
+    "lateral_kd": 0.42,
+    "vertical_kv": 2.1,
+    "max_lateral_accel_mps2": 3.5,
+    "max_vertical_accel_mps2": 28.0
+  },
+  "attitude_control": {
+    "kp": 0.55,
+    "kd": 1.65
+  },
+  "initial_state": {
+    "time_s": 0.0,
+    "x_m": 18.0,
+    "z_m": 720.0,
+    "vx_mps": -2.5,
+    "vz_mps": -58.0,
+    "theta_rad": 0.017453292519943295,
+    "omega_radps": 0.0,
+    "mass_kg": 25000.0
+  }
+}

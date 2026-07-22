@@ -1,0 +1,12 @@
+.DS_Store
+__pycache__/
+*.pyc
+*.log
+*.tmp
+*.bak
+
+outputs/*.csv
+outputs/*.json
+!outputs/nominal_landing.csv
+!outputs/nominal_landing_metrics.json
+!outputs/nominal_landing_config.json

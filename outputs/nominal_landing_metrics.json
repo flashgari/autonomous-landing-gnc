@@ -1,0 +1,12 @@
+{
+  "success": true,
+  "final_time_s": 23.150000000000194,
+  "landing_x_error_m": 2.6206838161509056,
+  "touchdown_vx_mps": -0.2497591806353281,
+  "touchdown_vz_mps": -2.4724683630761093,
+  "touchdown_speed_mps": 2.4850511976061753,
+  "propellant_used_kg": 2411.0715585083344,
+  "propellant_remaining_kg": 4588.928441491666,
+  "max_abs_tilt_deg": 1.5883809755793064,
+  "max_abs_gimbal_deg": 0.6480545336044529
+}
