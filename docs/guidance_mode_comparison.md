@@ -84,16 +84,17 @@ Corridor guidance improves robustness by moving lateral correction earlier in th
 
 The p95 touchdown-speed reduction is especially important. It shows that the new guidance law did not merely trade hard landings for better pad accuracy. It reduced terminal energy error while also improving landing dispersion.
 
-## Remaining Limitation
+## Limitation Exposed for the Next Phase
 
-Corridor guidance still has 16 pad misses. That means the controller is not yet fully robust to the sampled lateral dispersions. The next improvement should not simply raise lateral gains. A stronger next step is to add either:
+Corridor guidance still has 16 pad misses. That means the controller is not fully robust to the sampled lateral dispersions. The next project phase therefore added navigation errors and actuator dynamics rather than simply raising lateral gains. That phase showed that estimated-state feedback becomes the dominant limitation.
+
+A future guidance upgrade should add either:
 
 - an LQR/MPC-inspired terminal controller with explicit state weighting, or
 - a constrained guidance law that allocates lateral and vertical acceleration inside a tilt/throttle envelope.
 
-That next step would continue the real GNC development sequence:
+That upgrade would continue the GNC development sequence:
 
 ```text
 failure classification -> physical cause -> guidance redesign -> robustness comparison
 ```
-

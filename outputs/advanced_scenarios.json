@@ -1,0 +1,676 @@
+{
+  "scenarios": {
+    "full_stack_nominal": {
+      "metrics": {
+        "success": true,
+        "final_time_s": 44.399999999999615,
+        "final_altitude_m": 0.0,
+        "landing_x_m": -2.083542448826749,
+        "target_x_m": 0.0,
+        "landing_x_error_m": -2.083542448826749,
+        "touchdown_vx_mps": 0.3969240076042891,
+        "touchdown_vz_mps": -1.0275733747464346,
+        "touchdown_speed_mps": 1.1015696565812017,
+        "propellant_used_kg": 4061.7957373825193,
+        "propellant_remaining_kg": 2938.2042626174807,
+        "max_abs_tilt_deg": 1.8602316364654463,
+        "max_abs_gimbal_deg": 1.4457526777592702,
+        "max_abs_commanded_gimbal_deg": 1.695000664588596,
+        "max_abs_throttle_tracking_error": 0.7921350769957923,
+        "navigation_rejection_count": 0,
+        "rms_x_estimation_error_m": 0.4466888435003835,
+        "rms_z_estimation_error_m": 0.42162222201620175,
+        "rms_vx_estimation_error_mps": 0.10627027653734743,
+        "rms_vz_estimation_error_mps": 0.495536393213477,
+        "rms_theta_estimation_error_deg": 0.11520512894316365
+      },
+      "config": {
+        "vehicle": {
+          "dry_mass_kg": 18000.0,
+          "propellant_mass_kg": 7000.0,
+          "max_thrust_n": 760000.0,
+          "min_throttle": 0.38,
+          "max_gimbal_rad": 0.2,
+          "isp_s": 282.0,
+          "inertia_kg_m2": 1700000.0,
+          "engine_moment_arm_m": 15.0,
+          "rotational_damping_nms": 200000.0,
+          "reference_area_m2": 10.0,
+          "drag_coefficient": 0.55
+        },
+        "environment": {
+          "gravity_mps2": 9.80665,
+          "air_density_kg_m3": 0.65,
+          "wind_x_mps": 8.0
+        },
+        "guidance": {
+          "vertical_decel_mps2": 2.2,
+          "terminal_descent_mps": 0.8,
+          "lateral_kp": 0.03,
+          "lateral_kd": 0.42,
+          "vertical_kv": 2.1,
+          "max_lateral_accel_mps2": 3.5,
+          "max_vertical_accel_mps2": 28.0
+        },
+        "attitude_control": {
+          "kp": 0.55,
+          "kd": 1.65
+        },
+        "sensor_model": {
+          "sample_period_s": 0.1,
+          "position_sigma_m": 0.55,
+          "altitude_sigma_m": 0.4,
+          "velocity_sigma_mps": 0.1,
+          "attitude_sigma_rad": 0.0012,
+          "rate_sigma_radps": 0.0015,
+          "position_bias_sigma_m": 0.25,
+          "altitude_bias_sigma_m": 0.22,
+          "velocity_bias_sigma_mps": 0.035,
+          "attitude_bias_sigma_rad": 0.0007,
+          "rate_bias_sigma_radps": 0.0008
+        },
+        "estimator": {
+          "position_alpha": 0.62,
+          "position_beta": 0.025,
+          "velocity_measurement_blend": 0.62,
+          "attitude_alpha": 0.72,
+          "attitude_beta": 0.035,
+          "rate_measurement_blend": 0.62,
+          "horizontal_innovation_limit_m": 7.0,
+          "altitude_innovation_limit_m": 5.0,
+          "attitude_innovation_limit_rad": 0.045
+        },
+        "actuator_model": {
+          "throttle_time_constant_s": 0.22,
+          "gimbal_time_constant_s": 0.1,
+          "throttle_rate_limit_per_s": 1.8,
+          "gimbal_rate_limit_radps": 0.5,
+          "throttle_deadband": 0.004,
+          "gimbal_deadband_rad": 0.0007,
+          "command_delay_s": 0.08
+        },
+        "fault": {
+          "name": "none",
+          "thrust_loss_time_s": null,
+          "thrust_scale_after_fault": 1.0,
+          "altitude_bias_step_time_s": null,
+          "altitude_bias_step_m": 0.0
+        },
+        "initial_state": {
+          "time_s": 0.0,
+          "x_m": 18.0,
+          "z_m": 720.0,
+          "vx_mps": -2.5,
+          "vz_mps": -58.0,
+          "theta_rad": 0.017453292519943295,
+          "omega_radps": 0.0,
+          "mass_kg": 25000.0
+        },
+        "guidance_mode": "corridor",
+        "navigation_mode": "estimated",
+        "actuator_mode": "flight_like",
+        "rng_seed": 19,
+        "target_x_m": 0.0
+      }
+    },
+    "thrust_loss": {
+      "metrics": {
+        "success": false,
+        "final_time_s": 39.59999999999989,
+        "final_altitude_m": 0.0,
+        "landing_x_m": -4.858953830751111,
+        "target_x_m": 0.0,
+        "landing_x_error_m": -4.858953830751111,
+        "touchdown_vx_mps": 0.4611272143195958,
+        "touchdown_vz_mps": -1.9032681854812146,
+        "touchdown_speed_mps": 1.9583329884498972,
+        "propellant_used_kg": 3695.5467806744236,
+        "propellant_remaining_kg": 3304.4532193255764,
+        "max_abs_tilt_deg": 1.8602316364654463,
+        "max_abs_gimbal_deg": 0.792683639693112,
+        "max_abs_commanded_gimbal_deg": 1.0218699904750714,
+        "max_abs_throttle_tracking_error": 0.6218379537757437,
+        "navigation_rejection_count": 0,
+        "rms_x_estimation_error_m": 0.453166890562734,
+        "rms_z_estimation_error_m": 0.4216712346390947,
+        "rms_vx_estimation_error_mps": 0.10788073666933791,
+        "rms_vz_estimation_error_mps": 0.3806884965870876,
+        "rms_theta_estimation_error_deg": 0.11741676836171852
+      },
+      "config": {
+        "vehicle": {
+          "dry_mass_kg": 18000.0,
+          "propellant_mass_kg": 7000.0,
+          "max_thrust_n": 760000.0,
+          "min_throttle": 0.38,
+          "max_gimbal_rad": 0.2,
+          "isp_s": 282.0,
+          "inertia_kg_m2": 1700000.0,
+          "engine_moment_arm_m": 15.0,
+          "rotational_damping_nms": 200000.0,
+          "reference_area_m2": 10.0,
+          "drag_coefficient": 0.55
+        },
+        "environment": {
+          "gravity_mps2": 9.80665,
+          "air_density_kg_m3": 0.65,
+          "wind_x_mps": 8.0
+        },
+        "guidance": {
+          "vertical_decel_mps2": 2.2,
+          "terminal_descent_mps": 0.8,
+          "lateral_kp": 0.03,
+          "lateral_kd": 0.42,
+          "vertical_kv": 2.1,
+          "max_lateral_accel_mps2": 3.5,
+          "max_vertical_accel_mps2": 28.0
+        },
+        "attitude_control": {
+          "kp": 0.55,
+          "kd": 1.65
+        },
+        "sensor_model": {
+          "sample_period_s": 0.1,
+          "position_sigma_m": 0.55,
+          "altitude_sigma_m": 0.4,
+          "velocity_sigma_mps": 0.1,
+          "attitude_sigma_rad": 0.0012,
+          "rate_sigma_radps": 0.0015,
+          "position_bias_sigma_m": 0.25,
+          "altitude_bias_sigma_m": 0.22,
+          "velocity_bias_sigma_mps": 0.035,
+          "attitude_bias_sigma_rad": 0.0007,
+          "rate_bias_sigma_radps": 0.0008
+        },
+        "estimator": {
+          "position_alpha": 0.62,
+          "position_beta": 0.025,
+          "velocity_measurement_blend": 0.62,
+          "attitude_alpha": 0.72,
+          "attitude_beta": 0.035,
+          "rate_measurement_blend": 0.62,
+          "horizontal_innovation_limit_m": 7.0,
+          "altitude_innovation_limit_m": 5.0,
+          "attitude_innovation_limit_rad": 0.045
+        },
+        "actuator_model": {
+          "throttle_time_constant_s": 0.22,
+          "gimbal_time_constant_s": 0.1,
+          "throttle_rate_limit_per_s": 1.8,
+          "gimbal_rate_limit_radps": 0.5,
+          "throttle_deadband": 0.004,
+          "gimbal_deadband_rad": 0.0007,
+          "command_delay_s": 0.08
+        },
+        "fault": {
+          "name": "cluster_engine_out_equivalent",
+          "thrust_loss_time_s": 5.0,
+          "thrust_scale_after_fault": 0.82,
+          "altitude_bias_step_time_s": null,
+          "altitude_bias_step_m": 0.0
+        },
+        "initial_state": {
+          "time_s": 0.0,
+          "x_m": 18.0,
+          "z_m": 720.0,
+          "vx_mps": -2.5,
+          "vz_mps": -58.0,
+          "theta_rad": 0.017453292519943295,
+          "omega_radps": 0.0,
+          "mass_kg": 25000.0
+        },
+        "guidance_mode": "corridor",
+        "navigation_mode": "estimated",
+        "actuator_mode": "flight_like",
+        "rng_seed": 19,
+        "target_x_m": 0.0
+      }
+    },
+    "thrust_loss_recoverable": {
+      "metrics": {
+        "success": true,
+        "final_time_s": 44.24999999999962,
+        "final_altitude_m": 0.0,
+        "landing_x_m": -2.3011090249475985,
+        "target_x_m": 0.0,
+        "landing_x_error_m": -2.3011090249475985,
+        "touchdown_vx_mps": 0.43463540574719844,
+        "touchdown_vz_mps": -1.0768639935169597,
+        "touchdown_speed_mps": 1.1612682706688953,
+        "propellant_used_kg": 4050.3759429234233,
+        "propellant_remaining_kg": 2949.6240570765767,
+        "max_abs_tilt_deg": 1.8602316364654463,
+        "max_abs_gimbal_deg": 0.792683639693112,
+        "max_abs_commanded_gimbal_deg": 1.0218699904750714,
+        "max_abs_throttle_tracking_error": 0.6360941807429716,
+        "navigation_rejection_count": 0,
+        "rms_x_estimation_error_m": 0.44664376349083373,
+        "rms_z_estimation_error_m": 0.42715260358331913,
+        "rms_vx_estimation_error_mps": 0.10618756130930078,
+        "rms_vz_estimation_error_mps": 0.41720160961509073,
+        "rms_theta_estimation_error_deg": 0.11513851786034458
+      },
+      "config": {
+        "vehicle": {
+          "dry_mass_kg": 18000.0,
+          "propellant_mass_kg": 7000.0,
+          "max_thrust_n": 760000.0,
+          "min_throttle": 0.38,
+          "max_gimbal_rad": 0.2,
+          "isp_s": 282.0,
+          "inertia_kg_m2": 1700000.0,
+          "engine_moment_arm_m": 15.0,
+          "rotational_damping_nms": 200000.0,
+          "reference_area_m2": 10.0,
+          "drag_coefficient": 0.55
+        },
+        "environment": {
+          "gravity_mps2": 9.80665,
+          "air_density_kg_m3": 0.65,
+          "wind_x_mps": 8.0
+        },
+        "guidance": {
+          "vertical_decel_mps2": 2.2,
+          "terminal_descent_mps": 0.8,
+          "lateral_kp": 0.03,
+          "lateral_kd": 0.42,
+          "vertical_kv": 2.1,
+          "max_lateral_accel_mps2": 3.5,
+          "max_vertical_accel_mps2": 28.0
+        },
+        "attitude_control": {
+          "kp": 0.55,
+          "kd": 1.65
+        },
+        "sensor_model": {
+          "sample_period_s": 0.1,
+          "position_sigma_m": 0.55,
+          "altitude_sigma_m": 0.4,
+          "velocity_sigma_mps": 0.1,
+          "attitude_sigma_rad": 0.0012,
+          "rate_sigma_radps": 0.0015,
+          "position_bias_sigma_m": 0.25,
+          "altitude_bias_sigma_m": 0.22,
+          "velocity_bias_sigma_mps": 0.035,
+          "attitude_bias_sigma_rad": 0.0007,
+          "rate_bias_sigma_radps": 0.0008
+        },
+        "estimator": {
+          "position_alpha": 0.62,
+          "position_beta": 0.025,
+          "velocity_measurement_blend": 0.62,
+          "attitude_alpha": 0.72,
+          "attitude_beta": 0.035,
+          "rate_measurement_blend": 0.62,
+          "horizontal_innovation_limit_m": 7.0,
+          "altitude_innovation_limit_m": 5.0,
+          "attitude_innovation_limit_rad": 0.045
+        },
+        "actuator_model": {
+          "throttle_time_constant_s": 0.22,
+          "gimbal_time_constant_s": 0.1,
+          "throttle_rate_limit_per_s": 1.8,
+          "gimbal_rate_limit_radps": 0.5,
+          "throttle_deadband": 0.004,
+          "gimbal_deadband_rad": 0.0007,
+          "command_delay_s": 0.08
+        },
+        "fault": {
+          "name": "recoverable_thrust_decrement",
+          "thrust_loss_time_s": 5.0,
+          "thrust_scale_after_fault": 0.92,
+          "altitude_bias_step_time_s": null,
+          "altitude_bias_step_m": 0.0
+        },
+        "initial_state": {
+          "time_s": 0.0,
+          "x_m": 18.0,
+          "z_m": 720.0,
+          "vx_mps": -2.5,
+          "vz_mps": -58.0,
+          "theta_rad": 0.017453292519943295,
+          "omega_radps": 0.0,
+          "mass_kg": 25000.0
+        },
+        "guidance_mode": "corridor",
+        "navigation_mode": "estimated",
+        "actuator_mode": "flight_like",
+        "rng_seed": 19,
+        "target_x_m": 0.0
+      }
+    },
+    "altitude_sensor_fault": {
+      "metrics": {
+        "success": true,
+        "final_time_s": 50.549999999999265,
+        "final_altitude_m": 0.0,
+        "landing_x_m": 0.2829395285546869,
+        "target_x_m": 0.0,
+        "landing_x_error_m": 0.2829395285546869,
+        "touchdown_vx_mps": 0.27698584507957796,
+        "touchdown_vz_mps": -0.7518174382550589,
+        "touchdown_speed_mps": 0.8012182092531642,
+        "propellant_used_kg": 4515.554761510462,
+        "propellant_remaining_kg": 2484.4452384895376,
+        "max_abs_tilt_deg": 1.8602316364654463,
+        "max_abs_gimbal_deg": 1.4893419441659865,
+        "max_abs_commanded_gimbal_deg": 1.7248117781761596,
+        "max_abs_throttle_tracking_error": 0.8090205890243722,
+        "navigation_rejection_count": 435,
+        "rms_x_estimation_error_m": 0.44193605358242566,
+        "rms_z_estimation_error_m": 3.678956511191101,
+        "rms_vx_estimation_error_mps": 0.10425594534319826,
+        "rms_vz_estimation_error_mps": 0.4635891772783319,
+        "rms_theta_estimation_error_deg": 0.11539831916707832
+      },
+      "config": {
+        "vehicle": {
+          "dry_mass_kg": 18000.0,
+          "propellant_mass_kg": 7000.0,
+          "max_thrust_n": 760000.0,
+          "min_throttle": 0.38,
+          "max_gimbal_rad": 0.2,
+          "isp_s": 282.0,
+          "inertia_kg_m2": 1700000.0,
+          "engine_moment_arm_m": 15.0,
+          "rotational_damping_nms": 200000.0,
+          "reference_area_m2": 10.0,
+          "drag_coefficient": 0.55
+        },
+        "environment": {
+          "gravity_mps2": 9.80665,
+          "air_density_kg_m3": 0.65,
+          "wind_x_mps": 8.0
+        },
+        "guidance": {
+          "vertical_decel_mps2": 2.2,
+          "terminal_descent_mps": 0.8,
+          "lateral_kp": 0.03,
+          "lateral_kd": 0.42,
+          "vertical_kv": 2.1,
+          "max_lateral_accel_mps2": 3.5,
+          "max_vertical_accel_mps2": 28.0
+        },
+        "attitude_control": {
+          "kp": 0.55,
+          "kd": 1.65
+        },
+        "sensor_model": {
+          "sample_period_s": 0.1,
+          "position_sigma_m": 0.55,
+          "altitude_sigma_m": 0.4,
+          "velocity_sigma_mps": 0.1,
+          "attitude_sigma_rad": 0.0012,
+          "rate_sigma_radps": 0.0015,
+          "position_bias_sigma_m": 0.25,
+          "altitude_bias_sigma_m": 0.22,
+          "velocity_bias_sigma_mps": 0.035,
+          "attitude_bias_sigma_rad": 0.0007,
+          "rate_bias_sigma_radps": 0.0008
+        },
+        "estimator": {
+          "position_alpha": 0.62,
+          "position_beta": 0.025,
+          "velocity_measurement_blend": 0.62,
+          "attitude_alpha": 0.72,
+          "attitude_beta": 0.035,
+          "rate_measurement_blend": 0.62,
+          "horizontal_innovation_limit_m": 7.0,
+          "altitude_innovation_limit_m": 5.0,
+          "attitude_innovation_limit_rad": 0.045
+        },
+        "actuator_model": {
+          "throttle_time_constant_s": 0.22,
+          "gimbal_time_constant_s": 0.1,
+          "throttle_rate_limit_per_s": 1.8,
+          "gimbal_rate_limit_radps": 0.5,
+          "throttle_deadband": 0.004,
+          "gimbal_deadband_rad": 0.0007,
+          "command_delay_s": 0.08
+        },
+        "fault": {
+          "name": "altitude_bias_step",
+          "thrust_loss_time_s": null,
+          "thrust_scale_after_fault": 1.0,
+          "altitude_bias_step_time_s": 7.0,
+          "altitude_bias_step_m": 12.0
+        },
+        "initial_state": {
+          "time_s": 0.0,
+          "x_m": 18.0,
+          "z_m": 720.0,
+          "vx_mps": -2.5,
+          "vz_mps": -58.0,
+          "theta_rad": 0.017453292519943295,
+          "omega_radps": 0.0,
+          "mass_kg": 25000.0
+        },
+        "guidance_mode": "corridor",
+        "navigation_mode": "estimated",
+        "actuator_mode": "flight_like",
+        "rng_seed": 19,
+        "target_x_m": 0.0
+      }
+    },
+    "hazard_divert": {
+      "metrics": {
+        "success": true,
+        "final_time_s": 44.34999999999962,
+        "final_altitude_m": 0.0,
+        "landing_x_m": 9.470088536294917,
+        "target_x_m": 12.0,
+        "landing_x_error_m": -2.5299114637050835,
+        "touchdown_vx_mps": 0.33819465162451995,
+        "touchdown_vz_mps": -1.0358115872482445,
+        "touchdown_speed_mps": 1.0896243695261032,
+        "propellant_used_kg": 4058.219198671075,
+        "propellant_remaining_kg": 2941.780801328925,
+        "max_abs_tilt_deg": 2.6837768590990776,
+        "max_abs_gimbal_deg": 1.485307891813622,
+        "max_abs_commanded_gimbal_deg": 1.9952229453790378,
+        "max_abs_throttle_tracking_error": 0.9253061685218903,
+        "navigation_rejection_count": 0,
+        "rms_x_estimation_error_m": 0.44635127831042537,
+        "rms_z_estimation_error_m": 0.42497026674025695,
+        "rms_vx_estimation_error_mps": 0.10698266019970101,
+        "rms_vz_estimation_error_mps": 0.4997449006920854,
+        "rms_theta_estimation_error_deg": 0.1152636418148248,
+        "hazard_clearance_m": 5.4700885362949165,
+        "divert_distance_m": 12.0
+      },
+      "config": {
+        "vehicle": {
+          "dry_mass_kg": 18000.0,
+          "propellant_mass_kg": 7000.0,
+          "max_thrust_n": 760000.0,
+          "min_throttle": 0.38,
+          "max_gimbal_rad": 0.2,
+          "isp_s": 282.0,
+          "inertia_kg_m2": 1700000.0,
+          "engine_moment_arm_m": 15.0,
+          "rotational_damping_nms": 200000.0,
+          "reference_area_m2": 10.0,
+          "drag_coefficient": 0.55
+        },
+        "environment": {
+          "gravity_mps2": 9.80665,
+          "air_density_kg_m3": 0.65,
+          "wind_x_mps": 8.0
+        },
+        "guidance": {
+          "vertical_decel_mps2": 2.2,
+          "terminal_descent_mps": 0.8,
+          "lateral_kp": 0.03,
+          "lateral_kd": 0.42,
+          "vertical_kv": 2.1,
+          "max_lateral_accel_mps2": 3.5,
+          "max_vertical_accel_mps2": 28.0
+        },
+        "attitude_control": {
+          "kp": 0.55,
+          "kd": 1.65
+        },
+        "sensor_model": {
+          "sample_period_s": 0.1,
+          "position_sigma_m": 0.55,
+          "altitude_sigma_m": 0.4,
+          "velocity_sigma_mps": 0.1,
+          "attitude_sigma_rad": 0.0012,
+          "rate_sigma_radps": 0.0015,
+          "position_bias_sigma_m": 0.25,
+          "altitude_bias_sigma_m": 0.22,
+          "velocity_bias_sigma_mps": 0.035,
+          "attitude_bias_sigma_rad": 0.0007,
+          "rate_bias_sigma_radps": 0.0008
+        },
+        "estimator": {
+          "position_alpha": 0.62,
+          "position_beta": 0.025,
+          "velocity_measurement_blend": 0.62,
+          "attitude_alpha": 0.72,
+          "attitude_beta": 0.035,
+          "rate_measurement_blend": 0.62,
+          "horizontal_innovation_limit_m": 7.0,
+          "altitude_innovation_limit_m": 5.0,
+          "attitude_innovation_limit_rad": 0.045
+        },
+        "actuator_model": {
+          "throttle_time_constant_s": 0.22,
+          "gimbal_time_constant_s": 0.1,
+          "throttle_rate_limit_per_s": 1.8,
+          "gimbal_rate_limit_radps": 0.5,
+          "throttle_deadband": 0.004,
+          "gimbal_deadband_rad": 0.0007,
+          "command_delay_s": 0.08
+        },
+        "fault": {
+          "name": "none",
+          "thrust_loss_time_s": null,
+          "thrust_scale_after_fault": 1.0,
+          "altitude_bias_step_time_s": null,
+          "altitude_bias_step_m": 0.0
+        },
+        "initial_state": {
+          "time_s": 0.0,
+          "x_m": 18.0,
+          "z_m": 720.0,
+          "vx_mps": -2.5,
+          "vz_mps": -58.0,
+          "theta_rad": 0.017453292519943295,
+          "omega_radps": 0.0,
+          "mass_kg": 25000.0
+        },
+        "guidance_mode": "corridor",
+        "navigation_mode": "estimated",
+        "actuator_mode": "flight_like",
+        "rng_seed": 19,
+        "target_x_m": 12.0
+      }
+    }
+  },
+  "hazards": [
+    {
+      "left_m": -4.0,
+      "right_m": 4.0,
+      "name": "debris field"
+    }
+  ],
+  "divert_sweep": [
+    {
+      "target_x_m": -12.0,
+      "required_lateral_correction_m": 30.0,
+      "success": false,
+      "final_time_s": 44.399999999999615,
+      "final_altitude_m": 0.0,
+      "landing_x_m": -15.27736691358755,
+      "landing_x_error_m": -3.2773669135875494,
+      "touchdown_vx_mps": -0.11977326803103543,
+      "touchdown_vz_mps": -1.0277293446029911,
+      "touchdown_speed_mps": 1.0346850929113303,
+      "propellant_used_kg": 4061.627532387036,
+      "propellant_remaining_kg": 2938.372467612964,
+      "max_abs_tilt_deg": 1.6032122079633164,
+      "max_abs_gimbal_deg": 1.3820945656328134,
+      "max_abs_commanded_gimbal_deg": 1.8001763083171527,
+      "max_abs_throttle_tracking_error": 0.7921425198530625,
+      "navigation_rejection_count": 0,
+      "rms_x_estimation_error_m": 0.44672271737399916,
+      "rms_z_estimation_error_m": 0.42164125799287044,
+      "rms_vx_estimation_error_mps": 0.1048766579714471,
+      "rms_vz_estimation_error_mps": 0.49553575774191155,
+      "rms_theta_estimation_error_deg": 0.1151008419709185
+    },
+    {
+      "target_x_m": 0.0,
+      "required_lateral_correction_m": 18.0,
+      "success": true,
+      "final_time_s": 44.399999999999615,
+      "final_altitude_m": 0.0,
+      "landing_x_m": -2.083542448826749,
+      "landing_x_error_m": -2.083542448826749,
+      "touchdown_vx_mps": 0.3969240076042891,
+      "touchdown_vz_mps": -1.0275733747464346,
+      "touchdown_speed_mps": 1.1015696565812017,
+      "propellant_used_kg": 4061.7957373825193,
+      "propellant_remaining_kg": 2938.2042626174807,
+      "max_abs_tilt_deg": 1.8602316364654463,
+      "max_abs_gimbal_deg": 1.4457526777592702,
+      "max_abs_commanded_gimbal_deg": 1.695000664588596,
+      "max_abs_throttle_tracking_error": 0.7921350769957923,
+      "navigation_rejection_count": 0,
+      "rms_x_estimation_error_m": 0.4466888435003835,
+      "rms_z_estimation_error_m": 0.42162222201620175,
+      "rms_vx_estimation_error_mps": 0.10627027653734743,
+      "rms_vz_estimation_error_mps": 0.495536393213477,
+      "rms_theta_estimation_error_deg": 0.11520512894316365
+    },
+    {
+      "target_x_m": 12.0,
+      "required_lateral_correction_m": 6.0,
+      "success": true,
+      "final_time_s": 44.34999999999962,
+      "final_altitude_m": 0.0,
+      "landing_x_m": 9.470088536294917,
+      "landing_x_error_m": -2.5299114637050835,
+      "touchdown_vx_mps": 0.33819465162451995,
+      "touchdown_vz_mps": -1.0358115872482445,
+      "touchdown_speed_mps": 1.0896243695261032,
+      "propellant_used_kg": 4058.219198671075,
+      "propellant_remaining_kg": 2941.780801328925,
+      "max_abs_tilt_deg": 2.6837768590990776,
+      "max_abs_gimbal_deg": 1.485307891813622,
+      "max_abs_commanded_gimbal_deg": 1.9952229453790378,
+      "max_abs_throttle_tracking_error": 0.9253061685218903,
+      "navigation_rejection_count": 0,
+      "rms_x_estimation_error_m": 0.44635127831042537,
+      "rms_z_estimation_error_m": 0.42497026674025695,
+      "rms_vx_estimation_error_mps": 0.10698266019970101,
+      "rms_vz_estimation_error_mps": 0.4997449006920854,
+      "rms_theta_estimation_error_deg": 0.1152636418148248
+    },
+    {
+      "target_x_m": 24.0,
+      "required_lateral_correction_m": 6.0,
+      "success": true,
+      "final_time_s": 44.34999999999962,
+      "final_altitude_m": 0.0,
+      "landing_x_m": 23.233646316040044,
+      "landing_x_error_m": -0.7663536839599558,
+      "touchdown_vx_mps": 0.3602330663186216,
+      "touchdown_vz_mps": -1.0357957060713165,
+      "touchdown_speed_mps": 1.0966497192746159,
+      "propellant_used_kg": 4058.745577128535,
+      "propellant_remaining_kg": 2941.254422871465,
+      "max_abs_tilt_deg": 3.5436142628352116,
+      "max_abs_gimbal_deg": 2.116326743268613,
+      "max_abs_commanded_gimbal_deg": 2.841724529345253,
+      "max_abs_throttle_tracking_error": 0.9252967326002408,
+      "navigation_rejection_count": 0,
+      "rms_x_estimation_error_m": 0.4462993880423814,
+      "rms_z_estimation_error_m": 0.42495941112027463,
+      "rms_vx_estimation_error_mps": 0.10875794566453638,
+      "rms_vz_estimation_error_mps": 0.49974603900406805,
+      "rms_theta_estimation_error_deg": 0.11544510173172093
+    }
+  ]
+}

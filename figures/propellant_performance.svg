@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="520" viewBox="0 0 960 520" role="img">
+<title>Propellant performance across lateral divert targets</title>
+<rect width="100%" height="100%" fill="#f8fafc"/>
+<text x="52" y="42" font-family="Arial" font-size="24" font-weight="700" fill="#0f172a">Divert Demand and Propellant Performance</text>
+<text x="52" y="67" font-family="Arial" font-size="14" fill="#475569">Same initial state, navigation seed, guidance, and actuators; only the target coordinate changes.</text>
+<rect x="90" y="112" width="790" height="280" fill="#ffffff" stroke="#cbd5e1"/>
+<text x="26" y="124" font-family="Arial" font-size="12" fill="#64748b">4065</text>
+<text x="26" y="392" font-family="Arial" font-size="12" fill="#64748b">4055</text>
+<rect x="124.0" y="204.6" width="129.5" height="187.4" fill="#dc2626" opacity="0.84"/>
+<text x="188.8" y="194.6" text-anchor="middle" font-family="Arial" font-size="13" font-weight="700" fill="#0f172a">4061.6 kg</text>
+<text x="188.8" y="417" text-anchor="middle" font-family="Arial" font-size="13" font-weight="700" fill="#334155">target -12 m</text>
+<text x="188.8" y="436" text-anchor="middle" font-family="Arial" font-size="12" fill="#64748b">correction 30 m</text>
+<text x="188.8" y="455" text-anchor="middle" font-family="Arial" font-size="12" fill="#dc2626">FAIL</text>
+<rect x="321.5" y="199.7" width="129.5" height="192.3" fill="#059669" opacity="0.84"/>
+<text x="386.2" y="189.7" text-anchor="middle" font-family="Arial" font-size="13" font-weight="700" fill="#0f172a">4061.8 kg</text>
+<text x="386.2" y="417" text-anchor="middle" font-family="Arial" font-size="13" font-weight="700" fill="#334155">target +0 m</text>
+<text x="386.2" y="436" text-anchor="middle" font-family="Arial" font-size="12" fill="#64748b">correction 18 m</text>
+<text x="386.2" y="455" text-anchor="middle" font-family="Arial" font-size="12" fill="#059669">PASS</text>
+<rect x="519.0" y="304.3" width="129.5" height="87.7" fill="#059669" opacity="0.84"/>
+<text x="583.8" y="294.3" text-anchor="middle" font-family="Arial" font-size="13" font-weight="700" fill="#0f172a">4058.2 kg</text>
+<text x="583.8" y="417" text-anchor="middle" font-family="Arial" font-size="13" font-weight="700" fill="#334155">target +12 m</text>
+<text x="583.8" y="436" text-anchor="middle" font-family="Arial" font-size="12" fill="#64748b">correction 6 m</text>
+<text x="583.8" y="455" text-anchor="middle" font-family="Arial" font-size="12" fill="#059669">PASS</text>
+<rect x="716.5" y="288.9" width="129.5" height="103.1" fill="#059669" opacity="0.84"/>
+<text x="781.2" y="278.9" text-anchor="middle" font-family="Arial" font-size="13" font-weight="700" fill="#0f172a">4058.7 kg</text>
+<text x="781.2" y="417" text-anchor="middle" font-family="Arial" font-size="13" font-weight="700" fill="#334155">target +24 m</text>
+<text x="781.2" y="436" text-anchor="middle" font-family="Arial" font-size="12" fill="#64748b">correction 6 m</text>
+<text x="781.2" y="455" text-anchor="middle" font-family="Arial" font-size="12" fill="#059669">PASS</text>
+<text x="24" y="310.0" font-family="Arial" font-size="14" fill="#334155" transform="rotate(-90 24,310.0)">propellant used (kg; truncated scale)</text>
+<text x="52" y="488" font-family="Arial" font-size="13" fill="#475569">The truncated axis exposes a less-than-4 kg spread. The 30 m correction fails on target error despite nearly unchanged total propellant use.</text>
+</svg>

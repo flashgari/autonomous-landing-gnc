@@ -80,9 +80,9 @@
     "omega_radps": 0.0,
     "mass_kg": 25000.0
   },
-  "guidance_mode": "baseline",
-  "navigation_mode": "truth",
-  "actuator_mode": "ideal",
-  "rng_seed": 0,
+  "guidance_mode": "corridor",
+  "navigation_mode": "estimated",
+  "actuator_mode": "flight_like",
+  "rng_seed": 4242,
   "target_x_m": 0.0
 }

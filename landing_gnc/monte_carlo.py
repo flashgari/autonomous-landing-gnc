@@ -73,7 +73,15 @@ def classify_failure(metrics: dict) -> str:
     return "combined_margin"
 
 
-def run_monte_carlo(num_cases=200, seed=4242, dt_s=0.08, guidance_mode="baseline", duration_s=70.0):
+def run_monte_carlo(
+    num_cases=200,
+    seed=4242,
+    dt_s=0.08,
+    guidance_mode="baseline",
+    duration_s=70.0,
+    navigation_mode="truth",
+    actuator_mode="ideal",
+):
     rng = random.Random(seed)
     rows = []
     for case_id in range(num_cases):
@@ -85,13 +93,29 @@ def run_monte_carlo(num_cases=200, seed=4242, dt_s=0.08, guidance_mode="baseline
             dt_s=dt_s,
             duration_s=duration_s,
             guidance_mode=guidance_mode,
+            navigation_mode=navigation_mode,
+            actuator_mode=actuator_mode,
+            rng_seed=seed + 100_000 + case_id,
         )
-        row = {**dispersion, **metrics, "failure_mode": classify_failure(metrics), "guidance_mode": guidance_mode}
+        row = {
+            **dispersion,
+            **metrics,
+            "failure_mode": classify_failure(metrics),
+            "guidance_mode": guidance_mode,
+            "navigation_mode": navigation_mode,
+            "actuator_mode": actuator_mode,
+        }
         rows.append(row)
-    return rows, summarize(rows, seed, guidance_mode)
+    return rows, summarize(rows, seed, guidance_mode, navigation_mode, actuator_mode)
 
 
-def summarize(rows: list[dict], seed: int, guidance_mode: str) -> dict:
+def summarize(
+    rows: list[dict],
+    seed: int,
+    guidance_mode: str,
+    navigation_mode: str = "truth",
+    actuator_mode: str = "ideal",
+) -> dict:
     n = len(rows)
     successes = [r for r in rows if r["success"]]
     failure_modes: dict[str, int] = {}
@@ -106,6 +130,8 @@ def summarize(rows: list[dict], seed: int, guidance_mode: str) -> dict:
     return {
         "seed": seed,
         "guidance_mode": guidance_mode,
+        "navigation_mode": navigation_mode,
+        "actuator_mode": actuator_mode,
         "num_cases": n,
         "successes": len(successes),
         "success_rate": len(successes) / n if n else 0.0,
@@ -117,6 +143,7 @@ def summarize(rows: list[dict], seed: int, guidance_mode: str) -> dict:
         "min_propellant_remaining_kg": min(r["propellant_remaining_kg"] for r in rows),
         "max_abs_tilt_deg": max(r["max_abs_tilt_deg"] for r in rows),
         "max_abs_gimbal_deg": max(r["max_abs_gimbal_deg"] for r in rows),
+        "max_abs_throttle_tracking_error": max(r["max_abs_throttle_tracking_error"] for r in rows),
     }
 
 
@@ -129,7 +156,7 @@ def percentile_abs(rows: list[dict], key: str, p: float) -> float:
 def write_monte_carlo_csv(rows: list[dict], path: Path) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("w", newline="") as f:
-        writer = csv.DictWriter(f, fieldnames=list(rows[0].keys()))
+        writer = csv.DictWriter(f, fieldnames=list(rows[0].keys()), lineterminator="\n")
         writer.writeheader()
         writer.writerows(rows)
 

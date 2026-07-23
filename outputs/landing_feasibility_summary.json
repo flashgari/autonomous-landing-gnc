@@ -1,0 +1,8 @@
+{
+  "num_cases": 30,
+  "successes": 22,
+  "success_rate": 0.7333333333333333,
+  "maximum_successful_offset_m": 50.0,
+  "minimum_successful_altitude_m": 300.0,
+  "minimum_propellant_remaining_kg": 2700.2660188527334
+}

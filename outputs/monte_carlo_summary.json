@@ -1,6 +1,8 @@
 {
   "seed": 4242,
   "guidance_mode": "baseline",
+  "navigation_mode": "truth",
+  "actuator_mode": "ideal",
   "num_cases": 200,
   "successes": 93,
   "success_rate": 0.465,
@@ -15,5 +17,6 @@
   "p95_touchdown_speed_mps": 2.65867053081052,
   "min_propellant_remaining_kg": 4153.511207558568,
   "max_abs_tilt_deg": 6.061346060096716,
-  "max_abs_gimbal_deg": 5.193960509846963
+  "max_abs_gimbal_deg": 5.193960509846963,
+  "max_abs_throttle_tracking_error": 0.0
 }

@@ -132,16 +132,80 @@ The result is not a claim that the vehicle is flight-realistic. It is a controll
 
 ## Known Simplifications
 
-The current baseline does not yet include:
+The completed planar project still does not include:
 
 - full 6-DOF attitude dynamics
 - landing leg contact dynamics
-- engine startup/shutdown transients
-- throttle slew-rate limits
-- sensor noise or estimator lag
+- detailed engine startup/shutdown combustion transients
+- redundant sensor voting or covariance-based estimation
 - atmospheric density variation with altitude
 - plume-ground interaction
 - convex guidance or trajectory optimization
 
-These are not hidden. They define the roadmap for turning the baseline into a stronger GNC portfolio project.
+These are not hidden. They bound what can be inferred from the current results and define the next fidelity upgrades.
 
+## Navigation as Output Feedback
+
+The completed navigation layer replaces exact state feedback with:
+
+```text
+y_k = h(x_k) + b + nu_k
+```
+
+where `b` is a run-constant sensor bias and `nu_k` is sample noise. The estimator propagates position and attitude between measurement epochs, then corrects them with alpha-beta innovations. Guidance therefore acts on `x_hat`, while the plant evolves according to `x`.
+
+This distinction matters dynamically. Let the control law be `u = K(x_hat)`. A navigation error `e = x_hat - x` becomes a command perturbation approximately equal to:
+
+```text
+delta_u ~= (dK/dx) e
+```
+
+That command perturbation then passes through actuator lag before changing the true state. Estimation error, control sensitivity, and actuator bandwidth jointly determine the trajectory response; estimator RMS error alone is not a landing-performance metric.
+
+The Monte Carlo comparison demonstrates the coupling. With flight-like actuators, truth-state corridor guidance succeeds in `95.0%` of cases, while estimated-state feedback succeeds in `66.5%`. Most added failures are pad misses, indicating terminal lateral-state uncertainty rather than loss of attitude stability.
+
+## Actuator Bandwidth and Phase Lag
+
+Applied throttle and gimbal follow delayed, first-order, rate-limited dynamics:
+
+```text
+u_dot = (u_cmd(t - t_delay) - u) / tau
+|u_dot| <= rate_limit
+```
+
+For a sinusoidal command, first-order lag reduces magnitude and adds phase delay as frequency increases. Terminal guidance commands can therefore be mathematically feasible yet physically unrealizable if they demand acceleration changes faster than the engine or gimbal mechanism can produce.
+
+The maximum instantaneous command-to-applied throttle difference is large at ignition because a finite-rate actuator begins near zero while guidance immediately requests braking thrust. This is a transient tracking metric, not a steady-state error. The vehicle succeeds when the remaining stopping distance absorbs that transient; it fails when time-to-go is too short.
+
+## Fault Accommodation Physics
+
+The altitude-bias fault is handled with an innovation gate. A rejected measurement prevents a large residual from entering the estimate, but the estimator then relies on propagation and other channels. Model error accumulates, so fault tolerance consumes performance margin rather than making the fault disappear.
+
+The successful bias-fault case flies about `6.2 s` longer and retains roughly `454 kg` less propellant than the full-stack nominal case. The additional propellant use is primarily gravity loss: thrust must support weight during the extra time even when net acceleration is small.
+
+The 18% delivered-thrust loss produces a pad miss with propellant remaining. The key state is not fuel mass alone but available impulse and moment over finite time:
+
+```text
+available lateral impulse = integral T sin(theta) dt
+available pitch impulse   = integral T L sin(delta) dt
+```
+
+Reducing `T` decreases both. Stored propellant cannot compensate if the vehicle reaches the ground before it can deliver the required impulse.
+
+## Hazard Geometry and Reachability
+
+Hazard selection imposes a geometric requirement before continuous guidance begins. A candidate target must lie outside the unsafe interval with specified clearance. The guidance law then treats that target as the origin of its lateral error state.
+
+The successful hazard-relative case lands `5.47 m` from the nearest hazard edge. That number is geometric clearance, not target error. The target-relative landing error is `-2.53 m`; both values are needed because a trajectory can satisfy its controller tolerance yet violate a hazard boundary if the target itself was selected too close to unsafe terrain.
+
+## Sampled Feasibility Versus Formal Reachability
+
+The altitude/offset figure is a sampled closed-loop map. Each point integrates the nonlinear plant with controller and actuator limits and then applies terminal constraints. It is not a formal reachable set because the state grid is incomplete and no guarantee is made between sampled points.
+
+The boundary depends on initial kinetic energy, not merely position:
+
+```text
+E_vertical = 0.5 m vz^2 + m g z
+```
+
+Two cases with greater altitude can still have different margin if their initial descent speed, time spent near minimum throttle, and guidance-phase entry differ. This is why the observed boundary should be interpreted in the full state space rather than as a simple maximum-offset curve.

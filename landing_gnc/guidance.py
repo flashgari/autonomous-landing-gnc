@@ -18,12 +18,14 @@ def guidance_command(
     env: Environment,
     guidance: Guidance,
     attitude: AttitudeControl,
+    target_x_m: float = 0.0,
 ) -> Command:
     v_ref = vertical_velocity_reference(state.z_m, guidance)
     az_cmd = guidance.vertical_kv * (v_ref - state.vz_mps)
     az_cmd = clamp(az_cmd, -env.gravity_mps2 + 0.5, guidance.max_vertical_accel_mps2)
 
-    ax_cmd = -guidance.lateral_kp * state.x_m - guidance.lateral_kd * state.vx_mps
+    x_error_m = state.x_m - target_x_m
+    ax_cmd = -guidance.lateral_kp * x_error_m - guidance.lateral_kd * state.vx_mps
     ax_cmd = clamp(ax_cmd, -guidance.max_lateral_accel_mps2, guidance.max_lateral_accel_mps2)
 
     return command_from_acceleration(state, vehicle, env, attitude, ax_cmd, az_cmd, max_tilt_rad=0.14)
@@ -35,6 +37,7 @@ def corridor_guidance_command(
     env: Environment,
     guidance: Guidance,
     attitude: AttitudeControl,
+    target_x_m: float = 0.0,
 ) -> Command:
     """Altitude-scheduled terminal guidance with an explicit landing corridor.
 
@@ -44,12 +47,13 @@ def corridor_guidance_command(
     """
     corridor_half_width_m = 0.65 + 0.020 * max(state.z_m, 0.0)
     corridor_error = 0.0
-    if abs(state.x_m) > corridor_half_width_m:
-        corridor_error = state.x_m - math.copysign(corridor_half_width_m, state.x_m)
+    x_error_m = state.x_m - target_x_m
+    if abs(x_error_m) > corridor_half_width_m:
+        corridor_error = x_error_m - math.copysign(corridor_half_width_m, x_error_m)
 
     altitude_scale = clamp(state.z_m / 180.0, 0.28, 1.0)
     ax_cmd = (
-        -0.030 * state.x_m
+        -0.030 * x_error_m
         -0.52 * state.vx_mps
         -0.060 * corridor_error
     ) * altitude_scale

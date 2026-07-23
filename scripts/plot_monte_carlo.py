@@ -14,7 +14,7 @@ def load_rows(path):
             for key, value in row.items():
                 if key in ("success",):
                     parsed[key] = value == "True"
-                elif key in ("failure_mode", "guidance_mode"):
+                elif key in ("failure_mode", "guidance_mode", "navigation_mode", "actuator_mode"):
                     parsed[key] = value
                 else:
                     parsed[key] = float(value)

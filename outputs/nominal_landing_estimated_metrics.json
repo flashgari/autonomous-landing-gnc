@@ -1,0 +1,23 @@
+{
+  "success": true,
+  "final_time_s": 44.09999999999963,
+  "final_altitude_m": 0.0,
+  "landing_x_m": -1.3845629554920822,
+  "target_x_m": 0.0,
+  "landing_x_error_m": -1.3845629554920822,
+  "touchdown_vx_mps": 0.4489165102677416,
+  "touchdown_vz_mps": -1.120402024450814,
+  "touchdown_speed_mps": 1.2069907744404882,
+  "propellant_used_kg": 4038.7921225311948,
+  "propellant_remaining_kg": 2961.2078774688052,
+  "max_abs_tilt_deg": 1.7678854572192984,
+  "max_abs_gimbal_deg": 2.078708691638973,
+  "max_abs_commanded_gimbal_deg": 2.27171672070841,
+  "max_abs_throttle_tracking_error": 0.6834799828676035,
+  "navigation_rejection_count": 0,
+  "rms_x_estimation_error_m": 0.4025182812719123,
+  "rms_z_estimation_error_m": 0.3208679020949349,
+  "rms_vx_estimation_error_mps": 0.09890987822054091,
+  "rms_vz_estimation_error_mps": 0.5066677566974437,
+  "rms_theta_estimation_error_deg": 0.05576449685791466
+}

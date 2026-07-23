@@ -1,0 +1,36 @@
+# Verification Matrix
+
+Every requirement is connected to executable evidence. “Pass” means the implemented model satisfies the stated test criterion; it does not mean flight qualification.
+
+| ID | Requirement | Verification method | Evidence | Status |
+| --- | --- | --- | --- | --- |
+| DYN-01 | Integrate planar translation, rotation, and mass depletion | nominal simulation and unit test | `landing_gnc/dynamics.py`, `tests/test_simulation.py` | pass |
+| GNC-01 | Land the nominal baseline with positive propellant | trajectory simulation | `outputs/nominal_landing_metrics.json` | pass |
+| GNC-02 | Improve dispersion performance with corridor guidance | same-seed 200-case Monte Carlo comparison | `figures/guidance_mode_comparison.svg` | pass |
+| NAV-01 | Generate biased, noisy sampled navigation measurements | deterministic seeded simulation | `landing_gnc/navigation.py` | pass |
+| NAV-02 | Estimate position, velocity, attitude, and rate between samples | noise-free tracking and nominal RMS checks | `tests/test_navigation.py`, `figures/navigation_estimation_comparison.svg` | pass |
+| NAV-03 | Reject implausible altitude innovations | injected +12 m step fault | `outputs/advanced_scenarios.json` | pass |
+| ACT-01 | Enforce command delay, lag, deadband, slew, and saturation | unit test and full-stack scenario | `tests/test_actuators.py` | pass |
+| ROB-01 | Quantify robustness under vehicle, environment, and initial-state dispersions | fixed-seed 200-case campaigns | `outputs/navigation_comparison.json` | pass |
+| FDIR-01 | Preserve touchdown after a large altitude-channel bias | deterministic fault scenario | `figures/advanced_scenario_comparison.svg` | pass |
+| FDIR-02 | Identify loss of landing authority after major thrust decrement | deterministic 18% thrust-loss scenario | `docs/actuator_fault_response.md` | boundary identified |
+| HAZ-01 | Select a target outside the hazard interval with at least 3 m clearance | geometry unit test | `tests/test_hazards.py` | pass |
+| HAZ-02 | Land the full-stack simulation outside the hazard interval | deterministic divert scenario | `media/hazard_divert_landing_animation.html` | pass |
+| PERF-01 | Quantify propellant use across lateral divert demand | controlled target sweep | `figures/propellant_performance.svg` | pass |
+| PERF-02 | Sample touchdown feasibility over altitude/offset conditions | 30-case deterministic grid | `figures/landing_feasibility_envelope.svg` | pass |
+| SW-01 | Reproduce seeded Monte Carlo outputs | repeated campaigns in unit tests | `tests/test_monte_carlo.py` | pass |
+
+## Acceptance Criteria
+
+A successful touchdown requires all of the following:
+
+```text
+final altitude <= 0.05 m
+|target-relative position error| < 3.0 m
+|horizontal touchdown velocity| < 1.0 m/s
+|vertical touchdown velocity| < 2.5 m/s
+maximum body tilt < 12 deg
+propellant remaining > 0 kg
+```
+
+The criteria are model-level design requirements chosen to make comparisons repeatable. They are not copied from a specific launch vehicle or operational landing requirement.

@@ -15,3 +15,16 @@ outputs/*.json
 !outputs/monte_carlo_landing_corridor.csv
 !outputs/monte_carlo_summary_corridor.json
 !outputs/monte_carlo_guidance_comparison.json
+!outputs/nominal_landing_estimated.csv
+!outputs/nominal_landing_estimated_metrics.json
+!outputs/nominal_landing_estimated_config.json
+!outputs/monte_carlo_landing_corridor_truth_actuated.csv
+!outputs/monte_carlo_summary_corridor_truth_actuated.json
+!outputs/monte_carlo_landing_corridor_estimated_actuated.csv
+!outputs/monte_carlo_summary_corridor_estimated_actuated.json
+!outputs/navigation_comparison.json
+!outputs/advanced_scenarios.json
+!outputs/scenario_*.csv
+!outputs/divert_cost_sweep.csv
+!outputs/landing_feasibility_envelope.csv
+!outputs/landing_feasibility_summary.json

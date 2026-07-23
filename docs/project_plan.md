@@ -35,23 +35,26 @@ Before navigation modeling, the project added a guidance-improvement comparison:
 
 ## Week 4 Navigation
 
-- simulated barometer/IMU/GNSS-like measurements
-- sensor noise and bias
-- alpha-beta or Kalman-style state estimator
-- comparison of truth-state guidance vs estimated-state guidance
-- discussion of estimator lag during terminal descent
+- [x] simulated position/altitude, velocity, attitude, and rate measurements
+- [x] sensor sample noise and run-constant bias
+- [x] innovation-gated alpha-beta state estimator
+- [x] truth-state vs estimated-state Monte Carlo comparison
+- [x] upper-division analysis of estimator lag and terminal guidance
 
 ## Week 5 Advanced Control
 
-- compare baseline PD guidance with LQR/MPC-inspired terminal control
-- add throttle/gimbal rate limits
-- add glide-slope/tilt/throttle constraints
-- compare propellant use and landing dispersion
+- [x] throttle/gimbal delay, lag, deadband, rate limits, and saturation
+- [x] deterministic thrust-loss and sensor-bias faults
+- [x] hazard-relative target selection and divert scenario
+- [x] propellant/divert sweep and terminal-condition map
+- [ ] compare corridor guidance with constrained MPC or convex guidance
+- [ ] replace fixed-gain estimator with an error-state EKF
 
 ## Week 6 Portfolio Polish
 
-- recruiter-facing README
-- figure index
-- complete physics writeup
-- animation and Monte Carlo visuals
-- final engineering narrative
+- [x] recruiter-facing README with animation first
+- [x] figure index with result-by-result physical interpretation
+- [x] complete flight-physics and subsystem writeups
+- [x] advanced animation and verification visuals
+- [x] requirement-to-evidence verification matrix
+- [x] final engineering narrative

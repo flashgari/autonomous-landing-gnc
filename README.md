@@ -1,138 +1,149 @@
-# Autonomous Landing GNC Simulator
+# Autonomous Powered-Descent GNC Simulator
 
-Zero-cost software portfolio project for powered descent guidance, navigation, and control.
+A planar reusable-booster landing simulation that closes the loop through navigation, guidance, attitude control, throttle/TVC actuator dynamics, fault injection, hazard-relative targeting, and Monte Carlo verification.
 
-## Project Goal
+## Start With the Flight
 
-Build a reusable-booster landing simulator that models planar powered descent, throttle/gimbal commands, vehicle attitude, mass depletion, drag, wind, and landing constraints. The project is designed to show GNC reasoning through equations, simulation data, plots, animation, and upper-division physical interpretation.
+**[Open the interactive hazard-relative landing animation](media/hazard_divert_landing_animation.html)**
 
-The engineering story is:
+The animation overlays the vehicle's true trajectory and navigation estimate, marks the unsafe debris interval, identifies the selected safe target, and displays live target error, descent speed, throttle, and navigation separation.
 
-```text
-powered-descent dynamics -> guidance law -> attitude/TVC control -> landing metrics -> robustness expansion
+![Hazard-relative autonomous landing preview](media/hazard_divert_landing_preview.gif)
+
+![Actuator, fault, and hazard-divert verification](figures/advanced_scenario_comparison.svg)
+
+## Engineering Result
+
+The project begins with a nominal powered landing and then deliberately removes ideal assumptions. The final software path is:
+
+```mermaid
+flowchart LR
+    ENV["Vehicle and environment truth"] --> SENS["Biased, noisy sensors"]
+    SENS --> EST["Innovation-gated state estimator"]
+    EST --> HAZ["Safe-target selection"]
+    HAZ --> GUID["Altitude-scheduled corridor guidance"]
+    GUID --> CTRL["Attitude and TVC control"]
+    CTRL --> ACT["Delay, lag, slew, deadband, saturation"]
+    ACT --> DYN["Planar rigid-body dynamics"]
+    DYN --> ENV
+    DYN --> VER["Touchdown and robustness verification"]
 ```
 
-## Current Status
+Headline results:
 
-The initial baseline is a 2D powered-landing simulation with a successful nominal touchdown.
+| Verification case | Result | Interpretation |
+| --- | ---: | --- |
+| baseline guidance Monte Carlo | `46.5%` success | nominal tuning does not provide robust terminal margins |
+| corridor guidance Monte Carlo | `92.0%` success | earlier lateral correction protects late vertical braking authority |
+| corridor + actuators, truth feedback | `95.0%` success | finite actuator dynamics remain compatible with the guidance schedule |
+| corridor + actuators, estimated feedback | `66.5%` success | navigation error is now the dominant robustness limitation |
+| +12 m altitude-bias fault | pass | innovation gating preserves touchdown with additional gravity loss |
+| 8% delivered-thrust loss | pass | closed-loop margins absorb a moderate authority decrement |
+| 18% delivered-thrust loss | fail | lateral footprint authority is lost before fuel is depleted |
+| hazard-relative divert | pass | touchdown is `5.47 m` clear of the modeled debris edge |
 
-| Item | Status | Evidence |
-| --- | --- | --- |
-| Planar dynamics model | complete | [landing_gnc/dynamics.py](landing_gnc/dynamics.py) |
-| Guidance/control baseline | complete | [landing_gnc/guidance.py](landing_gnc/guidance.py) |
-| Nominal simulation runner | complete | [scripts/run_nominal_landing.py](scripts/run_nominal_landing.py) |
-| SVG plotting pipeline | complete | [scripts/plot_nominal_landing.py](scripts/plot_nominal_landing.py) |
-| Landing animation | complete | [media/nominal_landing_animation.html](media/nominal_landing_animation.html) |
-| Physics writeup | complete | [docs/flight_physics.md](docs/flight_physics.md) |
-| Monte Carlo robustness | complete | [docs/monte_carlo_robustness.md](docs/monte_carlo_robustness.md) |
-| Guidance comparison | complete | [docs/guidance_mode_comparison.md](docs/guidance_mode_comparison.md) |
-| Tests | complete | [tests/](tests/) |
+These are simulation results under stated assumptions, not flight-vehicle performance claims.
+
+## Flight Physics
+
+The planar state is:
+
+$$
+\mathbf{x}=[x,\;z,\;v_x,\;v_z,\;\theta,\;\omega,\;m]^T
+$$
+
+Translation, pitch rotation, and mass depletion are modeled as:
+
+$$
+m\ddot x=T\sin\theta+D_x
+$$
+
+$$
+m\ddot z=T\cos\theta+D_z-mg
+$$
+
+$$
+I_y\dot\omega=TL\sin\delta-c_\omega\omega, \qquad
+\dot m=-\frac{T}{I_{sp}g_0}
+$$
+
+The central coupling is thrust projection. Horizontal correction requires body tilt, but tilt reduces vertical thrust through $T\cos\theta$. Late divert commands can therefore improve pad alignment while consuming the acceleration margin needed to remove vertical kinetic energy. Corridor guidance addresses this by correcting crossrange earlier and reducing allowable tilt when terminal braking has priority.
+
+Navigation then changes the problem from state feedback to output feedback:
+
+$$
+\mathbf{y}_k=\mathbf{h}(\mathbf{x}_k)+\mathbf{b}+\boldsymbol{\nu}_k
+$$
+
+The estimator predicts between `0.10 s` measurement updates and applies innovation-gated corrections. Its error becomes a guidance error, which becomes an attitude command, which is filtered by actuator delay and slew limits before changing the true trajectory. The resulting 28.5-point Monte Carlo success-rate reduction is therefore a closed-loop systems result, not a plotting artifact.
+
+The complete derivation and result interpretation are in [Flight Physics](docs/flight_physics.md), [Navigation and State Estimation](docs/navigation_estimation.md), and [Actuator Dynamics and Fault Response](docs/actuator_fault_response.md).
 
 ## Visual Evidence
 
-### Nominal Landing Summary
-
-![Nominal landing summary](figures/nominal_landing_summary.svg)
-
-The plot shows the closed-loop descent from initial terminal conditions to touchdown. Altitude decreases smoothly, vertical velocity is reduced before ground contact, horizontal error is driven toward the pad, throttle rises during the braking phase, gimbal remains well inside its authority limit, and propellant remains positive at touchdown.
-
-Upper-division interpretation: the guidance law is shaping a feasible acceleration command while the vehicle mass decreases through `m_dot = -T/(Isp g0)`. The vertical channel is dominated by the trade between gravity loss, thrust-to-weight ratio, and terminal descent-rate constraint. The lateral channel is intentionally conservative: it removes crossrange error with small tilt rather than demanding large attitude excursions that would reduce vertical thrust margin.
-
-### Landing Animation
-
-Open the browser-viewable animation:
-
-[media/nominal_landing_animation.html](media/nominal_landing_animation.html)
-
-The animation shows why landing GNC is a coupled problem: body tilt creates horizontal acceleration but also projects thrust away from the vertical axis. A guidance law that asks for too much lateral correction late in descent can consume vertical thrust margin and produce a hard landing.
-
-For a fast visual review, open [FIGURE_INDEX.md](FIGURE_INDEX.md).
-
-### Monte Carlo Landing Dispersion
-
-![Monte Carlo landing dispersion](figures/monte_carlo_landing_dispersion.svg)
-
-The robustness campaign shows the baseline controller's real limitation. Out of 200 randomized dispersions, the current guidance law succeeds in 46.5% of cases. Failures are dominated by vertical-speed misses and pad misses, not propellant depletion.
-
-Upper-division interpretation: this is the expected next layer after a nominal landing. A single successful trajectory does not prove a landing controller is robust. The Monte Carlo footprint shows how uncertainty in initial state, wind, drag, thrust, and mass maps into terminal constraint violations. The dominant trade is lateral divert versus vertical thrust margin: more tilt helps remove crossrange error, but it reduces `T cos(theta)` available for braking.
-
-### Guidance Mode Comparison
+### Guidance Redesign
 
 ![Guidance mode comparison](figures/guidance_mode_comparison.svg)
 
-The corridor guidance law improves Monte Carlo success from `46.5%` to `92.0%` on the same 200 dispersions. It removes vertical-speed failures and reduces p95 touchdown speed from `2.66 m/s` to `0.82 m/s`, while slightly reducing maximum tilt and gimbal usage.
+The same 200 dispersions are applied to both guidance modes. Moving lateral correction earlier increases success from `46.5%` to `92.0%`, removes vertical-speed failures, and reduces p95 touchdown speed from `2.66 m/s` to `0.82 m/s`. Because maximum tilt and gimbal do not increase, the improvement comes from better temporal allocation of control authority rather than more aggressive actuator use.
 
-Upper-division interpretation: corridor guidance corrects lateral error earlier, when altitude provides time and vertical margin. Near touchdown, it limits late lateral tilt so the vehicle preserves `T cos(theta)` for vertical braking. The result is a true GNC iteration: the failure modes identified by Monte Carlo directly drove the guidance redesign.
+### Navigation in the Feedback Loop
 
-## Baseline Result
+![Navigation estimation comparison](figures/navigation_estimation_comparison.svg)
 
-The nominal run currently lands with:
+The nominal estimator remains sub-meter in position RMS, but the estimated-state Monte Carlo produces 64 pad misses. The lateral corridor tightens with altitude, so small state errors that are recoverable early can become unrecoverable late once tilt is intentionally limited to preserve vertical thrust.
 
-```text
-horizontal error: 2.62 m
-touchdown vx:    -0.25 m/s
-touchdown vz:    -2.47 m/s
-prop remaining:  4588.9 kg
-max tilt:        1.59 deg
-max gimbal:      0.65 deg
-```
+### Hazard Divert and Fault Response
 
-This is a first baseline, not the final project. The next steps are to add navigation noise, Monte Carlo wind/mass dispersions, a stronger divert case, and a more rigorous guidance method such as convex-style powered-descent guidance or LQR/MPC-inspired terminal control.
+![Advanced scenario comparison](figures/advanced_scenario_comparison.svg)
 
-## Run It
+The altitude-bias fault is survived because the estimator rejects innovations inconsistent with its predicted trajectory, but the additional flight time consumes about `454 kg` more propellant than the full-stack nominal case. The thrust-loss case retains `3304 kg` yet misses the pad, proving that stored propellant and usable time-constrained acceleration authority are not equivalent.
+
+### Sampled Feasibility
+
+![Landing feasibility envelope](figures/landing_feasibility_envelope.svg)
+
+The 30-point grid maps success and residual propellant over initial altitude and lateral offset. The boundary is not strictly monotonic because altitude, initial vertical kinetic energy, guidance phase, actuator lag, and wind-relative drag all change together. It is a sampled closed-loop terminal-condition map, not a continuous reachability guarantee.
+
+See [Figure Index](FIGURE_INDEX.md) for a plot-by-plot review and [Verification Matrix](VERIFICATION_MATRIX.md) for requirement traceability.
+
+## Reproduce the Evidence
+
+The simulator and SVG pipeline use the Python standard library. Pillow is used only to regenerate the GitHub-renderable GIF preview.
 
 ```bash
 python3 scripts/run_nominal_landing.py
 python3 scripts/plot_nominal_landing.py
 python3 scripts/make_landing_animation.py
-python3 scripts/run_monte_carlo.py
-python3 scripts/plot_monte_carlo.py
 python3 scripts/run_monte_carlo.py --mode both
+python3 scripts/plot_monte_carlo.py
 python3 scripts/plot_guidance_comparison.py
+python3 scripts/run_navigation_comparison.py
+python3 scripts/plot_navigation_comparison.py
+python3 scripts/run_advanced_scenarios.py
+python3 scripts/plot_advanced_scenarios.py
+python3 scripts/plot_propellant_performance.py
+python3 scripts/make_advanced_landing_animation.py
+python3 scripts/make_landing_gif.py
+python3 scripts/run_feasibility_envelope.py
+python3 scripts/plot_feasibility_envelope.py
 python3 -m unittest discover tests
 ```
 
-Outputs:
+## Repository Map
 
 ```text
-outputs/nominal_landing.csv
-outputs/nominal_landing_metrics.json
-outputs/nominal_landing_config.json
-figures/nominal_landing_summary.svg
-media/nominal_landing_animation.html
-outputs/monte_carlo_landing.csv
-outputs/monte_carlo_summary.json
-figures/monte_carlo_landing_dispersion.svg
-outputs/monte_carlo_landing_corridor.csv
-outputs/monte_carlo_summary_corridor.json
-outputs/monte_carlo_guidance_comparison.json
-figures/guidance_mode_comparison.svg
+landing_gnc/   dynamics, guidance, navigation, actuators, hazards, experiments
+scripts/       reproducible campaigns, SVG plots, and HTML animation generators
+docs/          equations, assumptions, physical interpretation, and limitations
+outputs/       generated trajectory, Monte Carlo, fault, and feasibility data
+figures/       recruiter-facing visual evidence generated from outputs
+media/         browser-viewable animations and GitHub-renderable GIF preview
+tests/         deterministic unit and system-level verification
 ```
 
-## Repository Layout
+## Model Boundaries
 
-```text
-landing_gnc/   dynamics, guidance, models, simulation helpers
-scripts/       runnable simulation, plotting, animation generation
-docs/          physics and project planning
-outputs/       generated CSV/JSON result files
-figures/       generated plots
-media/         browser-viewable animation
-tests/         unit tests
-```
+The simulator is intentionally planar and does not claim flight fidelity. It omits 6-DOF translation/rotation, slosh, flexible modes, multi-engine allocation, terrain-relative image processing, landing-leg contact, plume-ground interaction, covariance-based navigation, and onboard timing/quantization. These omissions are recorded because engineering credibility depends on knowing what the model cannot establish.
 
-## Roadmap
-
-- [x] Planar powered-descent dynamics
-- [x] Baseline guidance/control law
-- [x] Nominal landing CSV/metrics output
-- [x] Summary plot
-- [x] Landing animation
-- [x] Upper-division physics writeup
-- [x] Figure index
-- [x] Monte Carlo dispersion campaign
-- [x] Baseline vs corridor guidance comparison
-- [ ] Navigation sensor noise and estimator
-- [ ] LQR/MPC-inspired terminal controller comparison
-- [ ] Landing corridor and constraint visualization
-- [ ] Recruiter-facing final writeup
+The strongest next technical extension is an error-state EKF with IMU propagation, followed by constrained trajectory optimization or MPC. The current alpha-beta estimator provides the baseline needed to quantify whether those additions improve terminal constraints rather than merely adding algorithmic complexity.

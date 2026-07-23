@@ -1,0 +1,111 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="650" viewBox="0 0 1000 650" role="img">
+<title>Powered landing feasibility envelope</title>
+<rect width="100%" height="100%" fill="#f8fafc"/>
+<text x="52" y="42" font-family="Arial" font-size="24" font-weight="700" fill="#0f172a">Landing Feasibility and Propellant Margin</text>
+<text x="52" y="67" font-family="Arial" font-size="14" fill="#475569">Truth-state corridor guidance with flight-like throttle and gimbal dynamics.</text>
+<text x="229.0" y="92" text-anchor="middle" font-family="Arial" font-size="13" fill="#334155">0 m</text>
+<text x="347.0" y="92" text-anchor="middle" font-family="Arial" font-size="13" fill="#334155">10 m</text>
+<text x="465.0" y="92" text-anchor="middle" font-family="Arial" font-size="13" fill="#334155">20 m</text>
+<text x="583.0" y="92" text-anchor="middle" font-family="Arial" font-size="13" fill="#334155">30 m</text>
+<text x="701.0" y="92" text-anchor="middle" font-family="Arial" font-size="13" fill="#334155">40 m</text>
+<text x="819.0" y="92" text-anchor="middle" font-family="Arial" font-size="13" fill="#334155">50 m</text>
+<text x="152" y="153.0" text-anchor="end" font-family="Arial" font-size="13" fill="#334155">900 m</text>
+<rect x="170" y="110" width="110" height="70" fill="#dcfce7" stroke="#16a34a"/>
+<text x="225.0" y="141" text-anchor="middle" font-family="Arial" font-size="13" font-weight="700" fill="#0f172a">2700 kg</text>
+<text x="225.0" y="161" text-anchor="middle" font-family="Arial" font-size="11" fill="#475569">err 0.6 m</text>
+<rect x="288" y="110" width="110" height="70" fill="#dcfce7" stroke="#16a34a"/>
+<text x="343.0" y="141" text-anchor="middle" font-family="Arial" font-size="13" font-weight="700" fill="#0f172a">2754 kg</text>
+<text x="343.0" y="161" text-anchor="middle" font-family="Arial" font-size="11" fill="#475569">err 0.4 m</text>
+<rect x="406" y="110" width="110" height="70" fill="#dcfce7" stroke="#16a34a"/>
+<text x="461.0" y="141" text-anchor="middle" font-family="Arial" font-size="13" font-weight="700" fill="#0f172a">2754 kg</text>
+<text x="461.0" y="161" text-anchor="middle" font-family="Arial" font-size="11" fill="#475569">err 0.1 m</text>
+<rect x="524" y="110" width="110" height="70" fill="#dcfce7" stroke="#16a34a"/>
+<text x="579.0" y="141" text-anchor="middle" font-family="Arial" font-size="13" font-weight="700" fill="#0f172a">2700 kg</text>
+<text x="579.0" y="161" text-anchor="middle" font-family="Arial" font-size="11" fill="#475569">err -1.3 m</text>
+<rect x="642" y="110" width="110" height="70" fill="#dcfce7" stroke="#16a34a"/>
+<text x="697.0" y="141" text-anchor="middle" font-family="Arial" font-size="13" font-weight="700" fill="#0f172a">2802 kg</text>
+<text x="697.0" y="161" text-anchor="middle" font-family="Arial" font-size="11" fill="#475569">err -2.8 m</text>
+<rect x="760" y="110" width="110" height="70" fill="#fee2e2" stroke="#dc2626"/>
+<text x="815.0" y="141" text-anchor="middle" font-family="Arial" font-size="13" font-weight="700" fill="#0f172a">constraint fail</text>
+<text x="815.0" y="161" text-anchor="middle" font-family="Arial" font-size="11" fill="#475569">err -4.4 m</text>
+<text x="152" y="231.0" text-anchor="end" font-family="Arial" font-size="13" fill="#334155">750 m</text>
+<rect x="170" y="188" width="110" height="70" fill="#dcfce7" stroke="#16a34a"/>
+<text x="225.0" y="219" text-anchor="middle" font-family="Arial" font-size="13" font-weight="700" fill="#0f172a">2861 kg</text>
+<text x="225.0" y="239" text-anchor="middle" font-family="Arial" font-size="11" fill="#475569">err 0.3 m</text>
+<rect x="288" y="188" width="110" height="70" fill="#dcfce7" stroke="#16a34a"/>
+<text x="343.0" y="219" text-anchor="middle" font-family="Arial" font-size="13" font-weight="700" fill="#0f172a">2861 kg</text>
+<text x="343.0" y="239" text-anchor="middle" font-family="Arial" font-size="11" fill="#475569">err 0.0 m</text>
+<rect x="406" y="188" width="110" height="70" fill="#dcfce7" stroke="#16a34a"/>
+<text x="461.0" y="219" text-anchor="middle" font-family="Arial" font-size="13" font-weight="700" fill="#0f172a">2861 kg</text>
+<text x="461.0" y="239" text-anchor="middle" font-family="Arial" font-size="11" fill="#475569">err 0.2 m</text>
+<rect x="524" y="188" width="110" height="70" fill="#dcfce7" stroke="#16a34a"/>
+<text x="579.0" y="219" text-anchor="middle" font-family="Arial" font-size="13" font-weight="700" fill="#0f172a">2861 kg</text>
+<text x="579.0" y="239" text-anchor="middle" font-family="Arial" font-size="11" fill="#475569">err -2.5 m</text>
+<rect x="642" y="188" width="110" height="70" fill="#fee2e2" stroke="#dc2626"/>
+<text x="697.0" y="219" text-anchor="middle" font-family="Arial" font-size="13" font-weight="700" fill="#0f172a">constraint fail</text>
+<text x="697.0" y="239" text-anchor="middle" font-family="Arial" font-size="11" fill="#475569">err -4.7 m</text>
+<rect x="760" y="188" width="110" height="70" fill="#fee2e2" stroke="#dc2626"/>
+<text x="815.0" y="219" text-anchor="middle" font-family="Arial" font-size="13" font-weight="700" fill="#0f172a">constraint fail</text>
+<text x="815.0" y="239" text-anchor="middle" font-family="Arial" font-size="11" fill="#475569">err -4.7 m</text>
+<text x="152" y="309.0" text-anchor="end" font-family="Arial" font-size="13" fill="#334155">600 m</text>
+<rect x="170" y="266" width="110" height="70" fill="#dcfce7" stroke="#16a34a"/>
+<text x="225.0" y="297" text-anchor="middle" font-family="Arial" font-size="13" font-weight="700" fill="#0f172a">3060 kg</text>
+<text x="225.0" y="317" text-anchor="middle" font-family="Arial" font-size="11" fill="#475569">err -0.0 m</text>
+<rect x="288" y="266" width="110" height="70" fill="#dcfce7" stroke="#16a34a"/>
+<text x="343.0" y="297" text-anchor="middle" font-family="Arial" font-size="13" font-weight="700" fill="#0f172a">3060 kg</text>
+<text x="343.0" y="317" text-anchor="middle" font-family="Arial" font-size="11" fill="#475569">err -0.7 m</text>
+<rect x="406" y="266" width="110" height="70" fill="#dcfce7" stroke="#16a34a"/>
+<text x="461.0" y="297" text-anchor="middle" font-family="Arial" font-size="13" font-weight="700" fill="#0f172a">3060 kg</text>
+<text x="461.0" y="317" text-anchor="middle" font-family="Arial" font-size="11" fill="#475569">err 0.5 m</text>
+<rect x="524" y="266" width="110" height="70" fill="#dcfce7" stroke="#16a34a"/>
+<text x="579.0" y="297" text-anchor="middle" font-family="Arial" font-size="13" font-weight="700" fill="#0f172a">3059 kg</text>
+<text x="579.0" y="317" text-anchor="middle" font-family="Arial" font-size="11" fill="#475569">err -2.1 m</text>
+<rect x="642" y="266" width="110" height="70" fill="#dcfce7" stroke="#16a34a"/>
+<text x="697.0" y="297" text-anchor="middle" font-family="Arial" font-size="13" font-weight="700" fill="#0f172a">3058 kg</text>
+<text x="697.0" y="317" text-anchor="middle" font-family="Arial" font-size="11" fill="#475569">err -2.5 m</text>
+<rect x="760" y="266" width="110" height="70" fill="#dcfce7" stroke="#16a34a"/>
+<text x="815.0" y="297" text-anchor="middle" font-family="Arial" font-size="13" font-weight="700" fill="#0f172a">3039 kg</text>
+<text x="815.0" y="317" text-anchor="middle" font-family="Arial" font-size="11" fill="#475569">err 2.8 m</text>
+<text x="152" y="387.0" text-anchor="end" font-family="Arial" font-size="13" fill="#334155">450 m</text>
+<rect x="170" y="344" width="110" height="70" fill="#dcfce7" stroke="#16a34a"/>
+<text x="225.0" y="375" text-anchor="middle" font-family="Arial" font-size="13" font-weight="700" fill="#0f172a">3303 kg</text>
+<text x="225.0" y="395" text-anchor="middle" font-family="Arial" font-size="11" fill="#475569">err 0.7 m</text>
+<rect x="288" y="344" width="110" height="70" fill="#dcfce7" stroke="#16a34a"/>
+<text x="343.0" y="375" text-anchor="middle" font-family="Arial" font-size="13" font-weight="700" fill="#0f172a">3310 kg</text>
+<text x="343.0" y="395" text-anchor="middle" font-family="Arial" font-size="11" fill="#475569">err -0.9 m</text>
+<rect x="406" y="344" width="110" height="70" fill="#dcfce7" stroke="#16a34a"/>
+<text x="461.0" y="375" text-anchor="middle" font-family="Arial" font-size="13" font-weight="700" fill="#0f172a">3310 kg</text>
+<text x="461.0" y="395" text-anchor="middle" font-family="Arial" font-size="11" fill="#475569">err 0.7 m</text>
+<rect x="524" y="344" width="110" height="70" fill="#dcfce7" stroke="#16a34a"/>
+<text x="579.0" y="375" text-anchor="middle" font-family="Arial" font-size="13" font-weight="700" fill="#0f172a">3309 kg</text>
+<text x="579.0" y="395" text-anchor="middle" font-family="Arial" font-size="11" fill="#475569">err 1.7 m</text>
+<rect x="642" y="344" width="110" height="70" fill="#fee2e2" stroke="#dc2626"/>
+<text x="697.0" y="375" text-anchor="middle" font-family="Arial" font-size="13" font-weight="700" fill="#0f172a">constraint fail</text>
+<text x="697.0" y="395" text-anchor="middle" font-family="Arial" font-size="11" fill="#475569">err 5.0 m</text>
+<rect x="760" y="344" width="110" height="70" fill="#fee2e2" stroke="#dc2626"/>
+<text x="815.0" y="375" text-anchor="middle" font-family="Arial" font-size="13" font-weight="700" fill="#0f172a">constraint fail</text>
+<text x="815.0" y="395" text-anchor="middle" font-family="Arial" font-size="11" fill="#475569">err 11.0 m</text>
+<text x="152" y="465.0" text-anchor="end" font-family="Arial" font-size="13" fill="#334155">300 m</text>
+<rect x="170" y="422" width="110" height="70" fill="#dcfce7" stroke="#16a34a"/>
+<text x="225.0" y="453" text-anchor="middle" font-family="Arial" font-size="13" font-weight="700" fill="#0f172a">3634 kg</text>
+<text x="225.0" y="473" text-anchor="middle" font-family="Arial" font-size="11" fill="#475569">err -0.4 m</text>
+<rect x="288" y="422" width="110" height="70" fill="#dcfce7" stroke="#16a34a"/>
+<text x="343.0" y="453" text-anchor="middle" font-family="Arial" font-size="13" font-weight="700" fill="#0f172a">3634 kg</text>
+<text x="343.0" y="473" text-anchor="middle" font-family="Arial" font-size="11" fill="#475569">err -0.2 m</text>
+<rect x="406" y="422" width="110" height="70" fill="#dcfce7" stroke="#16a34a"/>
+<text x="461.0" y="453" text-anchor="middle" font-family="Arial" font-size="13" font-weight="700" fill="#0f172a">3634 kg</text>
+<text x="461.0" y="473" text-anchor="middle" font-family="Arial" font-size="11" fill="#475569">err 2.7 m</text>
+<rect x="524" y="422" width="110" height="70" fill="#fee2e2" stroke="#dc2626"/>
+<text x="579.0" y="453" text-anchor="middle" font-family="Arial" font-size="13" font-weight="700" fill="#0f172a">constraint fail</text>
+<text x="579.0" y="473" text-anchor="middle" font-family="Arial" font-size="11" fill="#475569">err 7.8 m</text>
+<rect x="642" y="422" width="110" height="70" fill="#fee2e2" stroke="#dc2626"/>
+<text x="697.0" y="453" text-anchor="middle" font-family="Arial" font-size="13" font-weight="700" fill="#0f172a">constraint fail</text>
+<text x="697.0" y="473" text-anchor="middle" font-family="Arial" font-size="11" fill="#475569">err -8.1 m</text>
+<rect x="760" y="422" width="110" height="70" fill="#fee2e2" stroke="#dc2626"/>
+<text x="815.0" y="453" text-anchor="middle" font-family="Arial" font-size="13" font-weight="700" fill="#0f172a">constraint fail</text>
+<text x="815.0" y="473" text-anchor="middle" font-family="Arial" font-size="11" fill="#475569">err -46.0 m</text>
+<text x="462.0" y="535" font-family="Arial" font-size="14" fill="#334155">initial lateral offset</text>
+<text x="44" y="360.0" font-family="Arial" font-size="14" fill="#334155" transform="rotate(-90 44,360.0)">initial altitude</text>
+<text x="52" y="592" font-family="Arial" font-size="14" font-weight="700" fill="#0f172a">Envelope result</text>
+<text x="52" y="616" font-family="Arial" font-size="13" fill="#475569">22/30 grid points satisfy pad, velocity, tilt, and propellant constraints; green labels report residual propellant, not a binary score.</text>
+</svg>

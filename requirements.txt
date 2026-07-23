@@ -1,1 +1,1 @@
-# No external runtime dependencies for the current baseline.
+Pillow>=10.0
