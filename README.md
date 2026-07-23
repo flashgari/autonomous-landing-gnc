@@ -25,6 +25,7 @@ The initial baseline is a 2D powered-landing simulation with a successful nomina
 | Landing animation | complete | [media/nominal_landing_animation.html](media/nominal_landing_animation.html) |
 | Physics writeup | complete | [docs/flight_physics.md](docs/flight_physics.md) |
 | Monte Carlo robustness | complete | [docs/monte_carlo_robustness.md](docs/monte_carlo_robustness.md) |
+| Guidance comparison | complete | [docs/guidance_mode_comparison.md](docs/guidance_mode_comparison.md) |
 | Tests | complete | [tests/](tests/) |
 
 ## Visual Evidence
@@ -55,6 +56,14 @@ The robustness campaign shows the baseline controller's real limitation. Out of 
 
 Upper-division interpretation: this is the expected next layer after a nominal landing. A single successful trajectory does not prove a landing controller is robust. The Monte Carlo footprint shows how uncertainty in initial state, wind, drag, thrust, and mass maps into terminal constraint violations. The dominant trade is lateral divert versus vertical thrust margin: more tilt helps remove crossrange error, but it reduces `T cos(theta)` available for braking.
 
+### Guidance Mode Comparison
+
+![Guidance mode comparison](figures/guidance_mode_comparison.svg)
+
+The corridor guidance law improves Monte Carlo success from `46.5%` to `92.0%` on the same 200 dispersions. It removes vertical-speed failures and reduces p95 touchdown speed from `2.66 m/s` to `0.82 m/s`, while slightly reducing maximum tilt and gimbal usage.
+
+Upper-division interpretation: corridor guidance corrects lateral error earlier, when altitude provides time and vertical margin. Near touchdown, it limits late lateral tilt so the vehicle preserves `T cos(theta)` for vertical braking. The result is a true GNC iteration: the failure modes identified by Monte Carlo directly drove the guidance redesign.
+
 ## Baseline Result
 
 The nominal run currently lands with:
@@ -78,6 +87,8 @@ python3 scripts/plot_nominal_landing.py
 python3 scripts/make_landing_animation.py
 python3 scripts/run_monte_carlo.py
 python3 scripts/plot_monte_carlo.py
+python3 scripts/run_monte_carlo.py --mode both
+python3 scripts/plot_guidance_comparison.py
 python3 -m unittest discover tests
 ```
 
@@ -92,6 +103,10 @@ media/nominal_landing_animation.html
 outputs/monte_carlo_landing.csv
 outputs/monte_carlo_summary.json
 figures/monte_carlo_landing_dispersion.svg
+outputs/monte_carlo_landing_corridor.csv
+outputs/monte_carlo_summary_corridor.json
+outputs/monte_carlo_guidance_comparison.json
+figures/guidance_mode_comparison.svg
 ```
 
 ## Repository Layout
@@ -116,6 +131,7 @@ tests/         unit tests
 - [x] Upper-division physics writeup
 - [x] Figure index
 - [x] Monte Carlo dispersion campaign
+- [x] Baseline vs corridor guidance comparison
 - [ ] Navigation sensor noise and estimator
 - [ ] LQR/MPC-inspired terminal controller comparison
 - [ ] Landing corridor and constraint visualization

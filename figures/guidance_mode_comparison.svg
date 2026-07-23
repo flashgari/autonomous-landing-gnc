@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="980" height="620" viewBox="0 0 980 620" role="img">
+<title>Baseline versus corridor guidance Monte Carlo comparison</title>
+<rect width="100%" height="100%" fill="#f8fafc"/>
+<text x="52" y="42" font-family="Arial" font-size="24" font-weight="700" fill="#0f172a">Guidance Mode Monte Carlo Comparison</text>
+<text x="52" y="66" font-family="Arial" font-size="14" fill="#475569">Same 200 dispersions and seed 4242: baseline guidance vs corridor guidance.</text>
+<text x="52" y="102" font-family="Arial" font-size="16" font-weight="700" fill="#0f172a">success rate</text>
+<rect x="94" y="112" width="399.3" height="24" fill="#dc2626" opacity="0.82"/>
+<rect x="94" y="144" width="790.0" height="24" fill="#059669" opacity="0.86"/>
+<text x="501.3" y="129" font-family="Arial" font-size="13" fill="#334155">baseline 46.50 %</text>
+<text x="892.0" y="161" font-family="Arial" font-size="13" fill="#334155">corridor 92.00 %</text>
+<text x="52" y="188" font-family="Arial" font-size="16" font-weight="700" fill="#0f172a">p95 |landing error|</text>
+<rect x="94" y="198" width="669.5" height="24" fill="#dc2626" opacity="0.82"/>
+<rect x="94" y="230" width="461.6" height="24" fill="#059669" opacity="0.86"/>
+<text x="771.5" y="215" font-family="Arial" font-size="13" fill="#334155">baseline 5.26 m</text>
+<text x="563.6" y="247" font-family="Arial" font-size="13" fill="#334155">corridor 3.63 m</text>
+<text x="52" y="274" font-family="Arial" font-size="16" font-weight="700" fill="#0f172a">p95 touchdown speed</text>
+<rect x="94" y="284" width="669.5" height="24" fill="#dc2626" opacity="0.82"/>
+<rect x="94" y="316" width="207.0" height="24" fill="#059669" opacity="0.86"/>
+<text x="771.5" y="301" font-family="Arial" font-size="13" fill="#334155">baseline 2.66 m/s</text>
+<text x="309.0" y="333" font-family="Arial" font-size="13" fill="#334155">corridor 0.82 m/s</text>
+<text x="52" y="360" font-family="Arial" font-size="16" font-weight="700" fill="#0f172a">max tilt</text>
+<rect x="94" y="370" width="669.5" height="24" fill="#dc2626" opacity="0.82"/>
+<rect x="94" y="402" width="653.5" height="24" fill="#059669" opacity="0.86"/>
+<text x="771.5" y="387" font-family="Arial" font-size="13" fill="#334155">baseline 6.06 deg</text>
+<text x="755.5" y="419" font-family="Arial" font-size="13" fill="#334155">corridor 5.92 deg</text>
+<text x="52" y="446" font-family="Arial" font-size="16" font-weight="700" fill="#0f172a">max gimbal</text>
+<rect x="94" y="456" width="669.5" height="24" fill="#dc2626" opacity="0.82"/>
+<rect x="94" y="488" width="653.0" height="24" fill="#059669" opacity="0.86"/>
+<text x="771.5" y="473" font-family="Arial" font-size="13" fill="#334155">baseline 5.19 deg</text>
+<text x="755.0" y="505" font-family="Arial" font-size="13" fill="#334155">corridor 5.07 deg</text>
+<text x="52" y="554" font-family="Arial" font-size="18" font-weight="700" fill="#0f172a">Failure mode shift</text>
+<text x="52" y="600" font-family="Arial" font-size="14" font-weight="700" fill="#0f172a">baseline</text>
+<rect x="144" y="582" width="80.0" height="24" fill="#dc2626" opacity="0.82"/>
+<text x="149" y="599" font-family="Arial" font-size="11" fill="#ffffff">pad_miss: 50</text>
+<rect x="224.0" y="582" width="148.8" height="24" fill="#059669" opacity="0.82"/>
+<text x="229.0" y="599" font-family="Arial" font-size="11" fill="#ffffff">success: 93</text>
+<rect x="372.8" y="582" width="91.2" height="24" fill="#dc2626" opacity="0.82"/>
+<text x="377.8" y="599" font-family="Arial" font-size="11" fill="#ffffff">vertical_speed: 57</text>
+<text x="52" y="638" font-family="Arial" font-size="14" font-weight="700" fill="#0f172a">corridor</text>
+<rect x="144" y="620" width="25.6" height="24" fill="#059669" opacity="0.82"/>
+<rect x="169.6" y="620" width="294.4" height="24" fill="#059669" opacity="0.82"/>
+<text x="174.6" y="637" font-family="Arial" font-size="11" fill="#ffffff">success: 184</text>
+<text x="52" y="590" font-family="Arial" font-size="14" fill="#475569">Corridor guidance changes success rate by +45.5 percentage points and reduces p95 touchdown speed by 1.84 m/s.</text>
+</svg>

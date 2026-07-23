@@ -12,3 +12,6 @@ outputs/*.json
 !outputs/nominal_landing_config.json
 !outputs/monte_carlo_landing.csv
 !outputs/monte_carlo_summary.json
+!outputs/monte_carlo_landing_corridor.csv
+!outputs/monte_carlo_summary_corridor.json
+!outputs/monte_carlo_guidance_comparison.json

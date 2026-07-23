@@ -1,0 +1,52 @@
+{
+  "modes": [
+    "baseline",
+    "corridor"
+  ],
+  "summaries": {
+    "baseline": {
+      "seed": 4242,
+      "guidance_mode": "baseline",
+      "num_cases": 200,
+      "successes": 93,
+      "success_rate": 0.465,
+      "failure_modes": {
+        "pad_miss": 50,
+        "success": 93,
+        "vertical_speed": 57
+      },
+      "p50_abs_landing_error_m": 2.389067560903439,
+      "p95_abs_landing_error_m": 5.2575015325263115,
+      "p50_touchdown_speed_mps": 2.435295461815192,
+      "p95_touchdown_speed_mps": 2.65867053081052,
+      "min_propellant_remaining_kg": 4153.511207558568,
+      "max_abs_tilt_deg": 6.061346060096716,
+      "max_abs_gimbal_deg": 5.193960509846963
+    },
+    "corridor": {
+      "seed": 4242,
+      "guidance_mode": "corridor",
+      "num_cases": 200,
+      "successes": 184,
+      "success_rate": 0.92,
+      "failure_modes": {
+        "success": 184,
+        "pad_miss": 16
+      },
+      "p50_abs_landing_error_m": 1.0982421081385167,
+      "p95_abs_landing_error_m": 3.625104905315229,
+      "p50_touchdown_speed_mps": 0.7599050467610599,
+      "p95_touchdown_speed_mps": 0.8220557374802387,
+      "min_propellant_remaining_kg": 2293.490944062414,
+      "max_abs_tilt_deg": 5.916362210619391,
+      "max_abs_gimbal_deg": 5.0659564418949765
+    }
+  },
+  "delta": {
+    "success_rate_points": 45.5,
+    "p95_abs_landing_error_m": -1.6323966272110826,
+    "p95_touchdown_speed_mps": -1.836614793330281,
+    "max_abs_tilt_deg": -0.14498384947732568,
+    "max_abs_gimbal_deg": -0.12800406795198604
+  }
+}

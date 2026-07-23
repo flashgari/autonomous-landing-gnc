@@ -1,6 +1,7 @@
 {
   "success": true,
   "final_time_s": 23.150000000000194,
+  "final_altitude_m": 0.0,
   "landing_x_error_m": 2.6206838161509056,
   "touchdown_vx_mps": -0.2497591806353281,
   "touchdown_vz_mps": -2.4724683630761093,

@@ -58,6 +58,8 @@ def sample_case(rng: random.Random, case_id: int) -> tuple[Vehicle, Environment,
 def classify_failure(metrics: dict) -> str:
     if metrics["success"]:
         return "success"
+    if metrics["final_altitude_m"] > 0.05:
+        return "time_horizon"
     if metrics["propellant_remaining_kg"] <= 1.0:
         return "propellant_depletion"
     if abs(metrics["touchdown_vz_mps"]) >= 2.5:
@@ -71,18 +73,25 @@ def classify_failure(metrics: dict) -> str:
     return "combined_margin"
 
 
-def run_monte_carlo(num_cases=200, seed=4242, dt_s=0.08):
+def run_monte_carlo(num_cases=200, seed=4242, dt_s=0.08, guidance_mode="baseline", duration_s=70.0):
     rng = random.Random(seed)
     rows = []
     for case_id in range(num_cases):
         vehicle, env, initial, dispersion = sample_case(rng, case_id)
-        _, metrics, _ = run_simulation(vehicle=vehicle, env=env, initial_state=initial, dt_s=dt_s)
-        row = {**dispersion, **metrics, "failure_mode": classify_failure(metrics)}
+        _, metrics, _ = run_simulation(
+            vehicle=vehicle,
+            env=env,
+            initial_state=initial,
+            dt_s=dt_s,
+            duration_s=duration_s,
+            guidance_mode=guidance_mode,
+        )
+        row = {**dispersion, **metrics, "failure_mode": classify_failure(metrics), "guidance_mode": guidance_mode}
         rows.append(row)
-    return rows, summarize(rows, seed)
+    return rows, summarize(rows, seed, guidance_mode)
 
 
-def summarize(rows: list[dict], seed: int) -> dict:
+def summarize(rows: list[dict], seed: int, guidance_mode: str) -> dict:
     n = len(rows)
     successes = [r for r in rows if r["success"]]
     failure_modes: dict[str, int] = {}
@@ -96,6 +105,7 @@ def summarize(rows: list[dict], seed: int) -> dict:
 
     return {
         "seed": seed,
+        "guidance_mode": guidance_mode,
         "num_cases": n,
         "successes": len(successes),
         "success_rate": len(successes) / n if n else 0.0,
@@ -125,6 +135,25 @@ def write_monte_carlo_csv(rows: list[dict], path: Path) -> None:
 
 
 def write_monte_carlo_outputs(rows: list[dict], summary: dict, outdir: Path = Path("outputs")) -> None:
-    write_monte_carlo_csv(rows, outdir / "monte_carlo_landing.csv")
-    write_json(summary, outdir / "monte_carlo_summary.json")
+    suffix = "" if summary["guidance_mode"] == "baseline" else f'_{summary["guidance_mode"]}'
+    write_monte_carlo_csv(rows, outdir / f"monte_carlo_landing{suffix}.csv")
+    write_json(summary, outdir / f"monte_carlo_summary{suffix}.json")
 
+
+def compare_summaries(summaries: list[dict]) -> dict:
+    by_mode = {summary["guidance_mode"]: summary for summary in summaries}
+    comparison = {
+        "modes": list(by_mode),
+        "summaries": by_mode,
+    }
+    if "baseline" in by_mode and "corridor" in by_mode:
+        baseline = by_mode["baseline"]
+        corridor = by_mode["corridor"]
+        comparison["delta"] = {
+            "success_rate_points": 100.0 * (corridor["success_rate"] - baseline["success_rate"]),
+            "p95_abs_landing_error_m": corridor["p95_abs_landing_error_m"] - baseline["p95_abs_landing_error_m"],
+            "p95_touchdown_speed_mps": corridor["p95_touchdown_speed_mps"] - baseline["p95_touchdown_speed_mps"],
+            "max_abs_tilt_deg": corridor["max_abs_tilt_deg"] - baseline["max_abs_tilt_deg"],
+            "max_abs_gimbal_deg": corridor["max_abs_gimbal_deg"] - baseline["max_abs_gimbal_deg"],
+        }
+    return comparison

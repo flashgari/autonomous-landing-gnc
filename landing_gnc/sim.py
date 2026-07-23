@@ -7,7 +7,7 @@ from dataclasses import asdict
 from pathlib import Path
 
 from .dynamics import rk4_step
-from .guidance import guidance_command
+from .guidance import corridor_guidance_command, guidance_command
 from .models import AttitudeControl, Environment, Guidance, State, Vehicle
 
 
@@ -32,6 +32,7 @@ def run_simulation(
     guidance: Guidance | None = None,
     attitude: AttitudeControl | None = None,
     initial_state: State | None = None,
+    guidance_mode: str = "baseline",
 ):
     vehicle = vehicle or Vehicle()
     env = env or Environment()
@@ -42,7 +43,12 @@ def run_simulation(
 
     n = int(duration_s / dt_s) + 1
     for _ in range(n):
-        cmd = guidance_command(state, vehicle, env, guidance, attitude)
+        if guidance_mode == "baseline":
+            cmd = guidance_command(state, vehicle, env, guidance, attitude)
+        elif guidance_mode == "corridor":
+            cmd = corridor_guidance_command(state, vehicle, env, guidance, attitude)
+        else:
+            raise ValueError(f"unknown guidance_mode: {guidance_mode}")
         rows.append(row_from_state_command(state, cmd, vehicle))
         if state.z_m <= 0.0 and state.vz_mps <= 0.0:
             break
@@ -57,6 +63,7 @@ def run_simulation(
         "guidance": asdict(guidance),
         "attitude_control": asdict(attitude),
         "initial_state": asdict(initial_state or default_initial_state(vehicle)),
+        "guidance_mode": guidance_mode,
     }
     return rows, metrics, config
 
@@ -98,6 +105,7 @@ def compute_metrics(rows, vehicle: Vehicle) -> dict:
     return {
         "success": success,
         "final_time_s": final["time_s"],
+        "final_altitude_m": final["z_m"],
         "landing_x_error_m": final["x_m"],
         "touchdown_vx_mps": final["vx_mps"],
         "touchdown_vz_mps": final["vz_mps"],

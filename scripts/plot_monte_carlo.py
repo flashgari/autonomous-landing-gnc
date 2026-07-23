@@ -14,7 +14,7 @@ def load_rows(path):
             for key, value in row.items():
                 if key in ("success",):
                     parsed[key] = value == "True"
-                elif key == "failure_mode":
+                elif key in ("failure_mode", "guidance_mode"):
                     parsed[key] = value
                 else:
                     parsed[key] = float(value)
@@ -106,4 +106,3 @@ def write_svg(rows, summary, path):
 
 if __name__ == "__main__":
     main()
-

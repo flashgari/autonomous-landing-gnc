@@ -1,5 +1,6 @@
 {
   "seed": 4242,
+  "guidance_mode": "baseline",
   "num_cases": 200,
   "successes": 93,
   "success_rate": 0.465,
