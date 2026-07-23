@@ -137,7 +137,7 @@ The completed planar project still does not include:
 - full 6-DOF attitude dynamics
 - landing leg contact dynamics
 - detailed engine startup/shutdown combustion transients
-- redundant sensor voting or covariance-based estimation
+- redundant sensor voting or terrain-relative navigation
 - atmospheric density variation with altitude
 - plume-ground interaction
 - convex guidance or trajectory optimization
@@ -146,13 +146,13 @@ These are not hidden. They bound what can be inferred from the current results a
 
 ## Navigation as Output Feedback
 
-The completed navigation layer replaces exact state feedback with:
+The first navigation baseline replaces exact state feedback with:
 
 ```text
 y_k = h(x_k) + b + nu_k
 ```
 
-where `b` is a run-constant sensor bias and `nu_k` is sample noise. The estimator propagates position and attitude between measurement epochs, then corrects them with alpha-beta innovations. Guidance therefore acts on `x_hat`, while the plant evolves according to `x`.
+where `b` is a run-constant sensor bias and `nu_k` is sample noise. The alpha-beta estimator propagates position and attitude between common measurement epochs, then applies fixed-gain corrections. The later error-state EKF instead propagates body-frame specific force and gyro rate, estimates inertial biases, and updates a covariance with asynchronous GPS, radar, and attitude measurements. In both cases guidance acts on `x_hat`, while the plant evolves according to hidden truth `x`.
 
 This distinction matters dynamically. Let the control law be `u = K(x_hat)`. A navigation error `e = x_hat - x` becomes a command perturbation approximately equal to:
 
@@ -162,7 +162,7 @@ delta_u ~= (dK/dx) e
 
 That command perturbation then passes through actuator lag before changing the true state. Estimation error, control sensitivity, and actuator bandwidth jointly determine the trajectory response; estimator RMS error alone is not a landing-performance metric.
 
-The Monte Carlo comparison demonstrates the coupling. With flight-like actuators, truth-state corridor guidance succeeds in `95.0%` of cases, while estimated-state feedback succeeds in `66.5%`. Most added failures are pad misses, indicating terminal lateral-state uncertainty rather than loss of attitude stability.
+The Monte Carlo comparisons demonstrate the coupling. With flight-like actuators, truth-state corridor guidance succeeds in `95.0%` of cases, alpha-beta feedback succeeds in `66.5%`, and ESKF feedback succeeds in `93.0%`. Most alpha-beta failures are pad misses. The ESKF removes many of them by estimating inertial biases and weighting measurements with propagated uncertainty, but its remaining `14` pad misses show that better state knowledge does not remove the finite-time lateral authority boundary.
 
 ## Actuator Bandwidth and Phase Lag
 

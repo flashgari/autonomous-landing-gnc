@@ -1,6 +1,6 @@
 # Autonomous Powered-Descent GNC Simulator
 
-A planar reusable-booster landing simulation that closes the loop through navigation, guidance, attitude control, throttle/TVC actuator dynamics, fault injection, hazard-relative targeting, and Monte Carlo verification.
+A planar reusable-booster landing simulation that closes the loop through IMU-driven error-state estimation, guidance, attitude control, throttle/TVC actuator dynamics, fault injection, hazard-relative targeting, and Monte Carlo verification.
 
 ## Start With the Flight
 
@@ -39,7 +39,7 @@ The project begins with a nominal powered landing and then deliberately removes 
 ```mermaid
 flowchart LR
     ENV["Vehicle and environment truth"] --> SENS["Biased, noisy sensors"]
-    SENS --> EST["Innovation-gated state estimator"]
+    SENS --> EST["IMU error-state EKF and aiding updates"]
     EST --> HAZ["Safe-target selection"]
     HAZ --> GUID["Altitude-scheduled corridor guidance"]
     GUID --> CTRL["Attitude and TVC control"]
@@ -56,7 +56,10 @@ Headline results:
 | baseline guidance Monte Carlo | `46.5%` success | nominal tuning does not provide robust terminal margins |
 | corridor guidance Monte Carlo | `92.0%` success | earlier lateral correction protects late vertical braking authority |
 | corridor + actuators, truth feedback | `95.0%` success | finite actuator dynamics remain compatible with the guidance schedule |
-| corridor + actuators, estimated feedback | `66.5%` success | navigation error is now the dominant robustness limitation |
+| corridor + actuators, alpha-beta feedback | `66.5%` success | fixed-gain navigation error is the dominant robustness limitation |
+| corridor + actuators, ESKF feedback | `93.0%` success | IMU propagation, bias estimation, and covariance-weighted aiding recover `26.5` points |
+| GPS unavailable from 8-28 s | pass | inertial covariance grows during the outage and contracts after reacquisition |
+| +12 m radar-altimeter bias | pass | scalar NIS gating rejects `344` contaminated radar updates |
 | +12 m altitude-bias fault | pass | innovation gating preserves touchdown with additional gravity loss |
 | 8% delivered-thrust loss | pass | closed-loop margins absorb a moderate authority decrement |
 | 18% delivered-thrust loss | fail | lateral footprint authority is lost before fuel is depleted |
@@ -89,17 +92,43 @@ $$
 
 The central coupling is thrust projection. Horizontal correction requires body tilt, but tilt reduces vertical thrust through $T\cos\theta$. Late divert commands can therefore improve pad alignment while consuming the acceleration margin needed to remove vertical kinetic energy. Corridor guidance addresses this by correcting crossrange earlier and reducing allowable tilt when terminal braking has priority.
 
-Navigation then changes the problem from state feedback to output feedback:
+Navigation changes the problem from state feedback to output feedback:
 
 $$
 \mathbf{y}_k=\mathbf{h}(\mathbf{x}_k)+\mathbf{b}+\boldsymbol{\nu}_k
 $$
 
-The estimator predicts between `0.10 s` measurement updates and applies innovation-gated corrections. Its error becomes a guidance error, which becomes an attitude command, which is filtered by actuator delay and slew limits before changing the true trajectory. The resulting 28.5-point Monte Carlo success-rate reduction is therefore a closed-loop systems result, not a plotting artifact.
+The alpha-beta baseline predicts between common `0.10 s` measurement updates using fixed gains. The ESKF instead integrates body-frame specific force and gyro rate, estimates two accelerometer biases and one gyro bias, propagates an eight-state covariance, and applies asynchronous GPS, radar-altimeter, and attitude updates. Its error becomes a guidance error, which becomes an attitude command, which is filtered by actuator delay and slew limits before changing the true trajectory.
 
-The complete derivation and result interpretation are in [Flight Physics](docs/flight_physics.md), [Navigation and State Estimation](docs/navigation_estimation.md), and [Actuator Dynamics and Fault Response](docs/actuator_fault_response.md).
+The complete derivation and result interpretation are in [Flight Physics](docs/flight_physics.md), [Error-State EKF and Inertial Navigation](docs/error_state_ekf.md), [Alpha-Beta Navigation Baseline](docs/navigation_estimation.md), and [Actuator Dynamics and Fault Response](docs/actuator_fault_response.md).
 
 ## Visual Evidence
+
+### Error-State Navigation Consistency
+
+![Error-state EKF consistency](figures/ekf_consistency.svg)
+
+The solid traces are estimation errors; the dashed traces are the filter's propagated `+/-3 sigma` envelopes. IMU white noise and bias random walks expand covariance between aiding epochs, while GPS, radar, and attitude updates contract the observable state directions. The attitude Jacobian couples pitch uncertainty into translational acceleration because an error in the body-to-inertial rotation misprojects the measured specific-force vector.
+
+The nominal mean NEES is `6.52` for an eight-state filter. Mean normalized NIS is `0.95` for GPS, `1.03` for radar, and `0.97` for attitude. Three-sigma coverage is `100.0%` in horizontal position, `99.8%` in altitude, and `99.5%` in pitch. Together these results indicate slightly conservative nominal covariance rather than an overconfident filter. A single trajectory is not an independent statistical ensemble, so the fixed-seed 200-case campaign supplies the stronger robustness evidence.
+
+### Navigation Architecture and Sensor Faults
+
+![ESKF navigation and fault-tolerance comparison](figures/ekf_navigation_robustness.svg)
+
+With guidance, actuators, dispersions, and seed held fixed, replacing the alpha-beta baseline with the ESKF raises success from `66.5%` to `93.0%`, reduces p95 absolute landing error from `4.94 m` to `3.18 m`, and reduces p95 touchdown speed from `1.96 m/s` to `0.92 m/s`. The mechanism is physical: body-frame specific force is rotated through the current attitude, inertial biases are estimated through repeated position/velocity aiding, and each correction is weighted by predicted uncertainty instead of a fixed gain.
+
+During the 20 s GPS outage, horizontal accelerometer-bias uncertainty integrates into position uncertainty approximately with time squared. Radar continues to bound altitude and attitude aiding limits gyro-driven frame rotation; GPS reacquisition then contracts the horizontal covariance. The vehicle still lands at `0.19 m` target error. In the radar-bias case, a `+12 m` step produces NIS above the scalar gate, so `344` updates are rejected while GPS preserves altitude observability. Fault exclusion does not make the failed channel healthy; it prevents that channel from corrupting the guidance state.
+
+This is a navigation-architecture comparison, not an algorithm-only A/B test on identical raw measurements. The alpha-beta baseline uses a common 10 Hz state-measurement packet; the ESKF uses a high-rate IMU and asynchronous aiding. Vehicle dispersions, guidance, control, actuators, terminal constraints, and campaign seed are held fixed.
+
+### Aiding-Sensor Fault Mechanics
+
+![ESKF aiding-sensor fault response](figures/ekf_sensor_fault_response.svg)
+
+At GPS loss, horizontal `1 sigma` uncertainty is `0.14 m`; after 20 s of inertial propagation it reaches `0.70 m`. The curved covariance envelope reflects the double integration of acceleration-bias uncertainty. Four seconds after GPS returns, it has contracted to `0.17 m`. This is the expected information-flow signature of partial observability, not a manual reset.
+
+The lower panel uses a logarithmic NIS axis because the radar step is orders of magnitude larger than the modeled innovation variance. Nominal scalar NIS fluctuates around order one. At `t = 12 s`, the persistent `+12 m` bias drives NIS to approximately `10^3`, well above the gate at `9`; radar corrections are omitted while the independent GPS channel continues to update altitude.
 
 ### Guidance Redesign
 
@@ -137,9 +166,11 @@ See [Figure Index](FIGURE_INDEX.md) for a plot-by-plot review and [Verification 
 
 ## Reproduce the Evidence
 
-The simulator and SVG pipeline use the Python standard library. Pillow is used only to regenerate the GitHub-renderable GIF preview.
+NumPy supports the ESKF matrix operations. Pillow is used only to regenerate the GitHub-renderable GIF preview.
 
 ```bash
+python3 -m pip install -r requirements.txt
+export PYTHONPATH="$PWD"
 python3 scripts/run_nominal_landing.py
 python3 scripts/plot_nominal_landing.py
 python3 scripts/make_landing_animation.py
@@ -148,6 +179,8 @@ python3 scripts/plot_monte_carlo.py
 python3 scripts/plot_guidance_comparison.py
 python3 scripts/run_navigation_comparison.py
 python3 scripts/plot_navigation_comparison.py
+python3 scripts/run_ekf_campaign.py --cases 200 --seed 4242
+python3 scripts/plot_ekf_campaign.py
 python3 scripts/run_advanced_scenarios.py
 python3 scripts/plot_advanced_scenarios.py
 python3 scripts/plot_propellant_performance.py
@@ -161,7 +194,7 @@ python3 -m unittest discover tests
 ## Repository Map
 
 ```text
-landing_gnc/   dynamics, guidance, navigation, actuators, hazards, experiments
+landing_gnc/   dynamics, guidance, alpha-beta/ESKF navigation, actuators, hazards
 scripts/       reproducible campaigns, SVG plots, and HTML animation generators
 docs/          equations, assumptions, physical interpretation, and limitations
 outputs/       generated trajectory, Monte Carlo, fault, and feasibility data
@@ -172,6 +205,6 @@ tests/         deterministic unit and system-level verification
 
 ## Model Boundaries
 
-The simulator is intentionally planar and does not claim flight fidelity. It omits 6-DOF translation/rotation, slosh, flexible modes, multi-engine allocation, terrain-relative image processing, landing-leg contact, plume-ground interaction, covariance-based navigation, and onboard timing/quantization. These omissions are recorded because engineering credibility depends on knowing what the model cannot establish.
+The simulator is intentionally planar and does not claim flight fidelity. It omits 6-DOF translation/rotation, a 15-state 3D inertial error model, slosh, flexible modes, multi-engine allocation, terrain-relative image processing, landing-leg contact, plume-ground interaction, and onboard timing/quantization. These omissions are recorded because engineering credibility depends on knowing what the model cannot establish.
 
-The strongest next technical extension is an error-state EKF with IMU propagation, followed by constrained trajectory optimization or MPC. The current alpha-beta estimator provides the baseline needed to quantify whether those additions improve terminal constraints rather than merely adding algorithmic complexity.
+The strongest next technical extension is constrained trajectory optimization or MPC with explicit thrust, tilt, glide-slope, and terminal-state constraints. The remaining ESKF failures are primarily pad misses near the finite-time lateral authority boundary, so the next question is how guidance allocates reachable impulse, not whether another estimator label can remove a control constraint.

@@ -10,8 +10,14 @@ Every requirement is connected to executable evidence. “Pass” means the impl
 | NAV-01 | Generate biased, noisy sampled navigation measurements | deterministic seeded simulation | `landing_gnc/navigation.py` | pass |
 | NAV-02 | Estimate position, velocity, attitude, and rate between samples | noise-free tracking and nominal RMS checks | `tests/test_navigation.py`, `figures/navigation_estimation_comparison.svg` | pass |
 | NAV-03 | Reject implausible altitude innovations | injected +12 m step fault | `outputs/advanced_scenarios.json` | pass |
+| NAV-04 | Propagate planar inertial state and accelerometer/gyro biases | deterministic hover and covariance tests | `landing_gnc/ekf.py`, `tests/test_ekf.py` | pass |
+| NAV-05 | Fuse asynchronous GPS, radar-altimeter, and attitude aiding | seeded nominal ESKF simulation | `figures/ekf_consistency.svg` | pass |
+| NAV-06 | Maintain covariance consistency at the modeled fidelity | NIS, NEES, and three-sigma coverage checks | `outputs/ekf_navigation_campaign.json` | pass, slightly conservative |
+| NAV-07 | Preserve a valid landing through a 20 s GPS outage | deterministic dropout injection | `outputs/ekf_gps_dropout.csv` | pass |
+| FDIR-03 | Exclude a persistent +12 m radar-altimeter bias | NIS-gated deterministic fault injection | `outputs/ekf_radar_bias.csv` | pass |
 | ACT-01 | Enforce command delay, lag, deadband, slew, and saturation | unit test and full-stack scenario | `tests/test_actuators.py` | pass |
 | ROB-01 | Quantify robustness under vehicle, environment, and initial-state dispersions | fixed-seed 200-case campaigns | `outputs/navigation_comparison.json` | pass |
+| ROB-02 | Compare alpha-beta and ESKF feedback on identical dispersions | matched-seed 200-case campaign | `figures/ekf_navigation_robustness.svg` | ESKF improves success by 26.5 points |
 | FDIR-01 | Preserve touchdown after a large altitude-channel bias | deterministic fault scenario | `figures/advanced_scenario_comparison.svg` | pass |
 | FDIR-02 | Identify loss of landing authority after major thrust decrement | deterministic 18% thrust-loss scenario | `docs/actuator_fault_response.md` | boundary identified |
 | HAZ-01 | Select a target outside the hazard interval with at least 3 m clearance | geometry unit test | `tests/test_hazards.py` | pass |

@@ -127,7 +127,7 @@ def summarize(
         idx = min(len(values) - 1, max(0, round((len(values) - 1) * p)))
         return values[idx]
 
-    return {
+    summary = {
         "seed": seed,
         "guidance_mode": guidance_mode,
         "navigation_mode": navigation_mode,
@@ -145,12 +145,45 @@ def summarize(
         "max_abs_gimbal_deg": max(r["max_abs_gimbal_deg"] for r in rows),
         "max_abs_throttle_tracking_error": max(r["max_abs_throttle_tracking_error"] for r in rows),
     }
+    if rows and "ekf_mean_nees" in rows[0]:
+        summary.update(
+            {
+                "mean_case_ekf_nees": mean(rows, "ekf_mean_nees"),
+                "p95_case_ekf_nees": percentile("ekf_mean_nees", 0.95),
+                "mean_ekf_x_3sigma_coverage": mean(rows, "ekf_x_3sigma_coverage"),
+                "mean_ekf_z_3sigma_coverage": mean(rows, "ekf_z_3sigma_coverage"),
+                "mean_ekf_theta_3sigma_coverage": mean(
+                    rows,
+                    "ekf_theta_3sigma_coverage",
+                ),
+                "mean_ekf_gps_normalized_nis": mean(
+                    rows,
+                    "ekf_mean_gps_normalized_nis",
+                ),
+                "mean_ekf_radar_normalized_nis": mean(
+                    rows,
+                    "ekf_mean_radar_normalized_nis",
+                ),
+                "mean_ekf_attitude_normalized_nis": mean(
+                    rows,
+                    "ekf_mean_attitude_normalized_nis",
+                ),
+                "total_ekf_rejected_updates": sum(
+                    int(r["ekf_rejected_updates"]) for r in rows
+                ),
+            }
+        )
+    return summary
 
 
 def percentile_abs(rows: list[dict], key: str, p: float) -> float:
     values = sorted(abs(float(r[key])) for r in rows)
     idx = min(len(values) - 1, max(0, round((len(values) - 1) * p)))
     return values[idx]
+
+
+def mean(rows: list[dict], key: str) -> float:
+    return sum(float(row[key]) for row in rows) / len(rows)
 
 
 def write_monte_carlo_csv(rows: list[dict], path: Path) -> None:

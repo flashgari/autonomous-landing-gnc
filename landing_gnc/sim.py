@@ -8,12 +8,15 @@ from dataclasses import asdict
 from pathlib import Path
 
 from .actuators import ActuatorStack
-from .dynamics import rk4_step
+from .dynamics import derivatives, rk4_step
+from .ekf import EkfSensorSuite, ErrorStateEkf
 from .guidance import corridor_guidance_command, guidance_command
 from .models import (
     ActuatorModel,
     AttitudeControl,
     Command,
+    EkfConfig,
+    EkfSensorModel,
     Environment,
     EstimatorConfig,
     FaultScenario,
@@ -51,6 +54,8 @@ def run_simulation(
     actuator_mode: str = "ideal",
     sensor_model: SensorModel | None = None,
     estimator_config: EstimatorConfig | None = None,
+    ekf_sensor_model: EkfSensorModel | None = None,
+    ekf_config: EkfConfig | None = None,
     actuator_model: ActuatorModel | None = None,
     fault: FaultScenario | None = None,
     rng_seed: int = 0,
@@ -62,21 +67,41 @@ def run_simulation(
     attitude = attitude or AttitudeControl()
     sensor_model = sensor_model or SensorModel()
     estimator_config = estimator_config or EstimatorConfig()
+    ekf_sensor_model = ekf_sensor_model or EkfSensorModel()
+    ekf_config = ekf_config or EkfConfig()
     actuator_model = actuator_model or ActuatorModel()
     fault = fault or FaultScenario()
     state = initial_state or default_initial_state(vehicle)
     rows = []
 
-    if navigation_mode not in ("truth", "estimated"):
+    if navigation_mode not in ("truth", "estimated", "ekf"):
         raise ValueError(f"unknown navigation_mode: {navigation_mode}")
     if actuator_mode not in ("ideal", "flight_like"):
         raise ValueError(f"unknown actuator_mode: {actuator_mode}")
 
     sensors = SensorSuite(sensor_model, random.Random(rng_seed), fault)
     estimator = AlphaBetaEstimator(estimator_config)
+    ekf_sensors = EkfSensorSuite(
+        ekf_sensor_model,
+        random.Random(rng_seed + 31_337),
+        env,
+        fault,
+    )
+    ekf_estimator = ErrorStateEkf(ekf_config, env.gravity_mps2)
     estimated_state = None
+    ekf_diagnostics: dict[str, float] = {}
     next_measurement_time_s = 0.0
+    next_gps_time_s = 0.0
+    next_radar_time_s = 0.0
+    next_attitude_time_s = 0.0
     actuators = ActuatorStack(actuator_model, vehicle, dt_s)
+    last_applied = Command(
+        throttle=0.0,
+        gimbal_rad=0.0,
+        desired_theta_rad=state.theta_rad,
+        desired_ax_mps2=0.0,
+        desired_az_mps2=0.0,
+    )
 
     n = int(duration_s / dt_s) + 1
     for _ in range(n):
@@ -88,6 +113,51 @@ def run_simulation(
                     next_measurement_time_s += sensor_model.sample_period_s
             else:
                 estimated_state = estimator.predict(state.time_s, state.mass_kg)
+            guidance_state = estimated_state
+        elif navigation_mode == "ekf":
+            derivative = derivatives(state, last_applied, vehicle, env)
+            propagation_dt_s = (
+                0.0
+                if ekf_estimator.time_s is None
+                else max(0.0, state.time_s - ekf_estimator.time_s)
+            )
+            imu = ekf_sensors.measure_imu(
+                state,
+                derivative.vx_mps,
+                derivative.vz_mps,
+                propagation_dt_s,
+            )
+            if not ekf_estimator.initialized:
+                gps = ekf_sensors.measure_gps(state)
+                if gps is None:
+                    raise RuntimeError("GPS must be available for EKF initialization")
+                attitude_measurement = ekf_sensors.measure_attitude(state)
+                ekf_estimator.initialize(gps, attitude_measurement, imu)
+                ekf_estimator.update_radar(ekf_sensors.measure_radar(state))
+                next_gps_time_s = ekf_sensor_model.gps_sample_period_s
+                next_radar_time_s = ekf_sensor_model.radar_sample_period_s
+                next_attitude_time_s = ekf_sensor_model.attitude_sample_period_s
+            else:
+                ekf_estimator.propagate(imu, propagation_dt_s)
+                if state.time_s + 1.0e-9 >= next_gps_time_s:
+                    gps = ekf_sensors.measure_gps(state)
+                    if gps is not None:
+                        ekf_estimator.update_gps(gps)
+                    while next_gps_time_s <= state.time_s + 1.0e-9:
+                        next_gps_time_s += ekf_sensor_model.gps_sample_period_s
+                if state.time_s + 1.0e-9 >= next_radar_time_s:
+                    ekf_estimator.update_radar(ekf_sensors.measure_radar(state))
+                    while next_radar_time_s <= state.time_s + 1.0e-9:
+                        next_radar_time_s += ekf_sensor_model.radar_sample_period_s
+                if state.time_s + 1.0e-9 >= next_attitude_time_s:
+                    ekf_estimator.update_attitude(ekf_sensors.measure_attitude(state))
+                    while next_attitude_time_s <= state.time_s + 1.0e-9:
+                        next_attitude_time_s += ekf_sensor_model.attitude_sample_period_s
+            estimated_state = ekf_estimator.to_state(state.mass_kg)
+            ekf_diagnostics = ekf_estimator.consistency_diagnostics(
+                state,
+                ekf_sensors.true_bias_vector,
+            )
             guidance_state = estimated_state
         else:
             guidance_state = state
@@ -133,16 +203,26 @@ def run_simulation(
                 estimated_state,
                 target_x_m,
                 thrust_scale,
-                estimator.rejection_count if navigation_mode == "estimated" else 0,
+                (
+                    estimator.rejection_count
+                    if navigation_mode == "estimated"
+                    else ekf_estimator.rejection_count
+                    if navigation_mode == "ekf"
+                    else 0
+                ),
+                ekf_diagnostics,
             )
         )
         if state.z_m <= 0.0 and state.vz_mps <= 0.0:
             break
+        last_applied = applied
         state = rk4_step(state, applied, vehicle, env, dt_s)
         if state.z_m < 0.0:
             state.z_m = 0.0
 
     metrics = compute_metrics(rows, vehicle, target_x_m)
+    if navigation_mode == "ekf":
+        metrics.update(ekf_estimator.summary())
     config = {
         "vehicle": asdict(vehicle),
         "environment": asdict(env),
@@ -150,6 +230,8 @@ def run_simulation(
         "attitude_control": asdict(attitude),
         "sensor_model": asdict(sensor_model),
         "estimator": asdict(estimator_config),
+        "ekf_sensor_model": asdict(ekf_sensor_model),
+        "ekf": asdict(ekf_config),
         "actuator_model": asdict(actuator_model),
         "fault": asdict(fault),
         "initial_state": asdict(initial_state or default_initial_state(vehicle)),
@@ -171,6 +253,7 @@ def row_from_state_command(
     target_x_m: float,
     thrust_scale: float,
     navigation_rejection_count: int,
+    ekf_diagnostics: dict[str, float] | None = None,
 ) -> dict:
     prop_remaining = max(0.0, state.mass_kg - vehicle.dry_mass_kg)
     row = {
@@ -208,9 +291,15 @@ def row_from_state_command(
                 "z_estimation_error_m": estimate.z_m - state.z_m,
                 "vx_estimation_error_mps": estimate.vx_mps - state.vx_mps,
                 "vz_estimation_error_mps": estimate.vz_mps - state.vz_mps,
-                "theta_estimation_error_deg": math.degrees(estimate.theta_rad - state.theta_rad),
+                "theta_estimation_error_deg": math.degrees(
+                    (estimate.theta_rad - state.theta_rad + math.pi)
+                    % (2.0 * math.pi)
+                    - math.pi
+                ),
             }
         )
+    if ekf_diagnostics:
+        row.update(ekf_diagnostics)
     return row
 
 
@@ -259,11 +348,39 @@ def compute_metrics(rows, vehicle: Vehicle, target_x_m: float = 0.0) -> dict:
                 "rms_theta_estimation_error_deg": rms(rows, "theta_estimation_error_deg"),
             }
         )
+    if "ekf_nees" in final:
+        metrics.update(
+            {
+                "ekf_mean_nees": finite_mean(rows, "ekf_nees"),
+                "ekf_p95_nees": finite_percentile(rows, "ekf_nees", 0.95),
+                "ekf_x_3sigma_coverage": finite_mean(rows, "ekf_x_inside_3sigma"),
+                "ekf_z_3sigma_coverage": finite_mean(rows, "ekf_z_inside_3sigma"),
+                "ekf_vx_3sigma_coverage": finite_mean(rows, "ekf_vx_inside_3sigma"),
+                "ekf_vz_3sigma_coverage": finite_mean(rows, "ekf_vz_inside_3sigma"),
+                "ekf_theta_3sigma_coverage": finite_mean(rows, "ekf_theta_inside_3sigma"),
+                "ekf_bax_3sigma_coverage": finite_mean(rows, "ekf_bax_inside_3sigma"),
+                "ekf_baz_3sigma_coverage": finite_mean(rows, "ekf_baz_inside_3sigma"),
+                "ekf_bg_3sigma_coverage": finite_mean(rows, "ekf_bg_inside_3sigma"),
+            }
+        )
     return metrics
 
 
 def rms(rows, key: str) -> float:
     return math.sqrt(sum(float(row[key]) ** 2 for row in rows) / len(rows))
+
+
+def finite_mean(rows, key: str) -> float:
+    values = [float(row[key]) for row in rows if math.isfinite(float(row[key]))]
+    return sum(values) / len(values) if values else math.nan
+
+
+def finite_percentile(rows, key: str, p: float) -> float:
+    values = sorted(float(row[key]) for row in rows if math.isfinite(float(row[key])))
+    if not values:
+        return math.nan
+    index = min(len(values) - 1, max(0, round((len(values) - 1) * p)))
+    return values[index]
 
 
 def write_csv(rows, path: Path) -> None:

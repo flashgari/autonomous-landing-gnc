@@ -1,0 +1,30 @@
+{
+  "seed": 4242,
+  "guidance_mode": "corridor",
+  "navigation_mode": "ekf",
+  "actuator_mode": "flight_like",
+  "num_cases": 200,
+  "successes": 186,
+  "success_rate": 0.93,
+  "failure_modes": {
+    "success": 186,
+    "pad_miss": 14
+  },
+  "p50_abs_landing_error_m": 1.0205492221262997,
+  "p95_abs_landing_error_m": 3.177061561426467,
+  "p50_touchdown_speed_mps": 0.7915836445104617,
+  "p95_touchdown_speed_mps": 0.9216344102457762,
+  "min_propellant_remaining_kg": 2414.5145187607486,
+  "max_abs_tilt_deg": 5.787167177965719,
+  "max_abs_gimbal_deg": 4.705760276924999,
+  "max_abs_throttle_tracking_error": 0.9759882289664576,
+  "mean_case_ekf_nees": 5.667481547518203,
+  "p95_case_ekf_nees": 7.246809307840499,
+  "mean_ekf_x_3sigma_coverage": 0.9974559550182207,
+  "mean_ekf_z_3sigma_coverage": 0.9969550171579086,
+  "mean_ekf_theta_3sigma_coverage": 0.9992460916042767,
+  "mean_ekf_gps_normalized_nis": 0.970918940826405,
+  "mean_ekf_radar_normalized_nis": 0.9962803875228462,
+  "mean_ekf_attitude_normalized_nis": 0.9422019526281616,
+  "total_ekf_rejected_updates": 531
+}

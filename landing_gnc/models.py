@@ -79,6 +79,47 @@ class EstimatorConfig:
 
 
 @dataclass(frozen=True)
+class EkfSensorModel:
+    """Truth-side IMU and asynchronous aiding-sensor error model."""
+
+    gps_sample_period_s: float = 0.20
+    radar_sample_period_s: float = 0.10
+    attitude_sample_period_s: float = 0.05
+    gps_position_sigma_m: float = 0.75
+    gps_velocity_sigma_mps: float = 0.12
+    radar_altitude_sigma_m: float = 0.35
+    attitude_sigma_rad: float = 0.0015
+    accel_noise_density_mps2_sqrt_hz: float = 0.035
+    gyro_noise_density_radps_sqrt_hz: float = 0.0007
+    accel_initial_bias_sigma_mps2: float = 0.12
+    gyro_initial_bias_sigma_radps: float = 0.0010
+    accel_bias_random_walk_mps2_sqrt_s: float = 0.0020
+    gyro_bias_random_walk_radps_sqrt_s: float = 0.00005
+
+
+@dataclass(frozen=True)
+class EkfConfig:
+    """Error-state covariance, process-noise, and innovation-gate settings."""
+
+    initial_position_sigma_m: float = 1.50
+    initial_velocity_sigma_mps: float = 0.30
+    initial_attitude_sigma_rad: float = 0.006
+    initial_accel_bias_sigma_mps2: float = 0.20
+    initial_gyro_bias_sigma_radps: float = 0.003
+    accel_noise_density_mps2_sqrt_hz: float = 0.050
+    gyro_noise_density_radps_sqrt_hz: float = 0.0010
+    accel_bias_random_walk_mps2_sqrt_s: float = 0.0030
+    gyro_bias_random_walk_radps_sqrt_s: float = 0.00008
+    gps_position_sigma_m: float = 0.75
+    gps_velocity_sigma_mps: float = 0.12
+    radar_altitude_sigma_m: float = 0.35
+    attitude_sigma_rad: float = 0.0015
+    gps_nis_gate: float = 18.47
+    radar_nis_gate: float = 9.0
+    attitude_nis_gate: float = 9.0
+
+
+@dataclass(frozen=True)
 class ActuatorModel:
     """Command-path dynamics for throttle and thrust-vector control."""
 
@@ -100,6 +141,8 @@ class FaultScenario:
     thrust_scale_after_fault: float = 1.0
     altitude_bias_step_time_s: float | None = None
     altitude_bias_step_m: float = 0.0
+    gps_dropout_start_s: float | None = None
+    gps_dropout_end_s: float | None = None
 
 
 @dataclass(frozen=True)

@@ -48,9 +48,20 @@ Before navigation modeling, the project added a guidance-improvement comparison:
 - [x] hazard-relative target selection and divert scenario
 - [x] propellant/divert sweep and terminal-condition map
 - [ ] compare corridor guidance with constrained MPC or convex guidance
-- [ ] replace fixed-gain estimator with an error-state EKF
+- [x] replace fixed-gain estimator with an IMU-driven error-state EKF
 
-## Week 6 Portfolio Polish
+## Week 6 Inertial Navigation
+
+- [x] body-frame accelerometer and gyro measurement model
+- [x] accelerometer- and gyro-bias random walks
+- [x] eight-state nonlinear strapdown propagation and covariance linearization
+- [x] asynchronous GPS, radar-altimeter, and attitude updates
+- [x] Joseph-form covariance correction and NIS gating
+- [x] NEES, normalized NIS, and three-sigma consistency evidence
+- [x] deterministic GPS-dropout and radar-bias fault cases
+- [x] matched-seed 200-case alpha-beta versus ESKF comparison
+
+## Week 7 Portfolio Polish
 
 - [x] recruiter-facing README with animation first
 - [x] figure index with result-by-result physical interpretation

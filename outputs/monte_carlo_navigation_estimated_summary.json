@@ -1,0 +1,22 @@
+{
+  "seed": 4242,
+  "guidance_mode": "corridor",
+  "navigation_mode": "estimated",
+  "actuator_mode": "flight_like",
+  "num_cases": 200,
+  "successes": 133,
+  "success_rate": 0.665,
+  "failure_modes": {
+    "success": 133,
+    "pad_miss": 64,
+    "vertical_speed": 3
+  },
+  "p50_abs_landing_error_m": 2.1088549572738478,
+  "p95_abs_landing_error_m": 4.9400032009272605,
+  "p50_touchdown_speed_mps": 0.8509532722907344,
+  "p95_touchdown_speed_mps": 1.9601439999592616,
+  "min_propellant_remaining_kg": 2495.761764440449,
+  "max_abs_tilt_deg": 5.7569405422900095,
+  "max_abs_gimbal_deg": 4.669462067565933,
+  "max_abs_throttle_tracking_error": 0.9596411358890683
+}

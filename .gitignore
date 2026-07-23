@@ -28,3 +28,7 @@ outputs/*.json
 !outputs/divert_cost_sweep.csv
 !outputs/landing_feasibility_envelope.csv
 !outputs/landing_feasibility_summary.json
+!outputs/ekf_*.csv
+!outputs/ekf_*.json
+!outputs/monte_carlo_navigation_*.csv
+!outputs/monte_carlo_navigation_*.json

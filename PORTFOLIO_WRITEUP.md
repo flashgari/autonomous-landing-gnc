@@ -30,6 +30,16 @@ The next phase removes truth-state feedback. Biased, noisy measurements are samp
 
 Throttle and TVC commands pass through delay, first-order lag, deadband, slew-rate limits, and saturation. These dynamics introduce phase lag and limit transient authority. The truth-feedback/full-actuator Monte Carlo succeeds in `95.0%` of cases; estimated feedback succeeds in `66.5%`. The difference quantifies the cost of navigation error in the actual closed loop.
 
+## Error-State Inertial Navigation
+
+The fixed-gain estimator is retained as a controlled baseline. The upgraded navigation architecture uses an eight-state planar error-state EKF containing position, velocity, pitch, two body-frame accelerometer biases, and gyro bias. The nominal trajectory propagates measured specific force through the nonlinear body-to-inertial rotation, subtracts gravity, and integrates velocity and position. The local covariance includes the derivative of inertial acceleration with respect to attitude, so pitch uncertainty correctly enters the translational error dynamics.
+
+GPS updates position and velocity at 5 Hz, radar constrains altitude at 10 Hz, and an independent attitude aid constrains pitch at 20 Hz. Corrections use covariance-normalized innovations and Joseph-form covariance updates. The nominal mean NEES is `6.52` for eight states, while normalized NIS is near one for every aiding channel. This indicates a slightly conservative covariance model rather than a filter whose error bars collapse below observed error.
+
+On the same 200 dispersions, ESKF feedback succeeds in `93.0%` of cases versus `66.5%` for the alpha-beta baseline. P95 landing error decreases by `1.76 m`, and p95 touchdown speed decreases by `1.04 m/s`. The improvement comes from physically propagating acceleration and estimating inertial bias, not from changing guidance gains.
+
+A 20 s GPS outage remains landable because radar and attitude aiding preserve partial observability while horizontal covariance expands. A persistent `+12 m` radar step is rejected `344` times by the scalar NIS gate; GPS then carries altitude observability. These cases demonstrate fault exclusion under modeled redundancy, not flight-qualified sensor fault management.
+
 ## Fault Response
 
 A persistent `+12 m` altitude bias is injected after seven seconds. The innovation gate rejects the inconsistent altitude corrections and the vehicle lands, but flight time and propellant use increase. The estimator has traded measurement availability for bounded fault contamination.
@@ -50,7 +60,7 @@ A 30-point terminal-condition grid samples altitude and crossrange. It provides 
 
 ## Verification Summary
 
-- `12` deterministic unit and system tests cover dynamics, guidance, Monte Carlo reproducibility, estimator behavior, innovation rejection, actuator rates, hazard geometry, and advanced scenarios.
+- `15` deterministic unit and system tests cover dynamics, guidance, Monte Carlo reproducibility, both estimator architectures, covariance propagation, innovation rejection, sensor dropout, actuator rates, hazard geometry, and advanced scenarios.
 - All plotted evidence is regenerated from committed CSV/JSON outputs.
 - Monte Carlo campaigns use a fixed seed and identical dispersion draws for controlled comparisons.
 - Failure cases are retained and explained rather than removed from the presentation.
@@ -58,10 +68,10 @@ A 30-point terminal-condition grid samples altitude and crossrange. It provides 
 
 ## What I Would Improve Next
 
-1. Replace fixed-gain navigation with an error-state EKF using IMU propagation and asynchronous radar/GNSS updates.
-2. Replace heuristic corridor guidance with a constrained optimizer or MPC formulation that handles thrust, tilt, glide-slope, and terminal-state limits explicitly.
-3. Extend the plant to 6-DOF with engine allocation, aerodynamic moments, inertia variation, and mass-property motion.
-4. Add terrain-relative sensing and probabilistic hazard-map uncertainty.
+1. Replace heuristic corridor guidance with a constrained optimizer or MPC formulation that handles thrust, tilt, glide-slope, and terminal-state limits explicitly.
+2. Extend the plant and ESKF to 6-DOF with a 15-state inertial error model, engine allocation, aerodynamic moments, inertia variation, and mass-property motion.
+3. Add terrain-relative sensing and probabilistic hazard-map uncertainty.
+4. Add timestamp jitter, delayed measurements, out-of-sequence updates, and processor timing.
 5. Build a hardware-in-the-loop version using the separate two-axis TVC test-stand project.
 
 The project is strongest as an engineering development record: each added layer changes measurable closed-loop behavior, and each limitation points to a testable next model rather than an unsupported claim.

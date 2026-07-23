@@ -1,4 +1,4 @@
-# Navigation and State Estimation
+# Alpha-Beta Navigation Baseline
 
 ## Engineering Question
 
@@ -96,4 +96,4 @@ This explains why pad misses dominate while tilt remains within limits. The desi
 
 The result proves that navigation quality materially changes terminal-constraint satisfaction in this model. It does not validate a flight navigation system. The present filter omits covariance propagation, sensor frame transformations, asynchronous sensor timing beyond a common sample period, accelerometer bias dynamics, radar-altimeter terrain geometry, and navigation-frame initialization.
 
-The appropriate next estimator upgrade is an error-state EKF with IMU propagation and discrete position/altitude updates. Its performance should be judged by normalized innovation consistency and landing metrics, not only by lower RMS state error.
+This baseline now serves as the controlled comparator for the implemented error-state EKF. The ESKF adds body-frame IMU propagation, accelerometer and gyro bias states, asynchronous aiding, covariance-normalized gating, and NIS/NEES diagnostics. See [Error-State EKF and Inertial Navigation](error_state_ekf.md) for the derivation and matched-seed closed-loop comparison.

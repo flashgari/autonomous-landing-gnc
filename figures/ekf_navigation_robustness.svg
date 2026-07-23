@@ -1,0 +1,66 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1500" height="1040" viewBox="0 0 1500 1040" role="img">
+<title>Error-state EKF robustness under dispersions, GPS dropout, and radar bias</title>
+<rect width="100%" height="100%" fill="#f8fafc"/>
+<text x="62" y="52" font-family="Arial" font-size="31" font-weight="700" fill="#0f172a">Navigation Architecture and Fault-Tolerance Evidence</text>
+<text x="62" y="82" font-family="Arial" font-size="16" fill="#64748b">Matched 200-case dispersions plus deterministic aiding-sensor faults; corridor guidance and actuator dynamics held fixed.</text>
+<text x="90" y="118" font-family="Arial" font-size="21" font-weight="700" fill="#0f172a">Matched-seed Monte Carlo result</text>
+<text x="90" y="159" font-family="Arial" font-size="16" font-weight="700" fill="#0f172a">success rate</text>
+<rect x="340" y="142" width="292.6" height="34" fill="#ea580c" opacity="0.88"/>
+<rect x="340" y="187" width="409.2" height="34" fill="#0891b2" opacity="0.92"/>
+<text x="642.6" y="165" font-family="Arial" font-size="14" fill="#334155">alpha-beta 66.50 %</text>
+<text x="759.2" y="210" font-family="Arial" font-size="14" fill="#334155">ESKF 93.00 %</text>
+<text x="90" y="285" font-family="Arial" font-size="16" font-weight="700" fill="#0f172a">p95 |landing error|</text>
+<rect x="340" y="268" width="440.0" height="34" fill="#ea580c" opacity="0.88"/>
+<rect x="340" y="313" width="283.0" height="34" fill="#0891b2" opacity="0.92"/>
+<text x="790.0" y="291" font-family="Arial" font-size="14" fill="#334155">alpha-beta 4.94 m</text>
+<text x="633.0" y="336" font-family="Arial" font-size="14" fill="#334155">ESKF 3.18 m</text>
+<text x="90" y="411" font-family="Arial" font-size="16" font-weight="700" fill="#0f172a">p95 touchdown speed</text>
+<rect x="340" y="394" width="440.0" height="34" fill="#ea580c" opacity="0.88"/>
+<rect x="340" y="439" width="206.9" height="34" fill="#0891b2" opacity="0.92"/>
+<text x="790.0" y="417" font-family="Arial" font-size="14" fill="#334155">alpha-beta 1.96 m/s</text>
+<text x="556.9" y="462" font-family="Arial" font-size="14" fill="#334155">ESKF 0.92 m/s</text>
+<text x="970" y="132" font-family="Arial" font-size="21" font-weight="700" fill="#0f172a">Physical interpretation</text>
+<text x="970" y="172" font-family="Arial" font-size="14" font-weight="400" fill="#334155">Success changes by +26.5 percentage points</text>
+<text x="970" y="193" font-family="Arial" font-size="14" font-weight="400" fill="#334155">and p95 landing error changes by -1.76 m.</text>
+<text x="970" y="214" font-family="Arial" font-size="14" font-weight="400" fill="#334155">The gain is not caused by retuning guidance:</text>
+<text x="970" y="235" font-family="Arial" font-size="14" font-weight="400" fill="#334155">both filters command the same corridor law.</text>
+<text x="970" y="256" font-family="Arial" font-size="14" font-weight="400" fill="#334155">It comes from propagating measured specific</text>
+<text x="970" y="277" font-family="Arial" font-size="14" font-weight="400" fill="#334155">force through the nonlinear attitude transform,</text>
+<text x="970" y="298" font-family="Arial" font-size="14" font-weight="400" fill="#334155">estimating inertial biases, and weighting each</text>
+<text x="970" y="319" font-family="Arial" font-size="14" font-weight="400" fill="#334155">aiding source by its predicted uncertainty.</text>
+<line x1="62" y1="535" x2="1438" y2="535" stroke="#cbd5e1" stroke-width="2"/>
+<text x="90" y="580" font-family="Arial" font-size="21" font-weight="700" fill="#0f172a">Deterministic sensor-fault mechanisms</text>
+<rect x="90" y="613" width="420" height="320" rx="6" fill="#ffffff" stroke="#cbd5e1"/>
+<rect x="90" y="613" width="8" height="320" fill="#2563eb"/>
+<text x="118" y="651" font-family="Arial" font-size="18" font-weight="700" fill="#0f172a">Nominal multisensor solution</text>
+<text x="118" y="689" font-family="Arial" font-size="15" fill="#334155">landing error -0.08 m</text>
+<text x="118" y="715" font-family="Arial" font-size="15" fill="#334155">touchdown speed 0.79 m/s</text>
+<text x="118" y="741" font-family="Arial" font-size="15" fill="#334155">mean NEES 6.52</text>
+<text x="118" y="767" font-family="Arial" font-size="15" font-weight="700" fill="#059669">PASS</text>
+<text x="118" y="809" font-family="Arial" font-size="14" font-weight="400" fill="#334155">GPS constrains low-frequency position and velocity;</text>
+<text x="118" y="831" font-family="Arial" font-size="14" font-weight="400" fill="#334155">radar tightens altitude near the surface; attitude</text>
+<text x="118" y="853" font-family="Arial" font-size="14" font-weight="400" fill="#334155">aiding prevents gyro bias from integrating into tilt.</text>
+<rect x="555" y="613" width="420" height="320" rx="6" fill="#ffffff" stroke="#cbd5e1"/>
+<rect x="555" y="613" width="8" height="320" fill="#7c3aed"/>
+<text x="583" y="651" font-family="Arial" font-size="18" font-weight="700" fill="#0f172a">GPS unavailable from 8 to 28 s</text>
+<text x="583" y="689" font-family="Arial" font-size="15" fill="#334155">landing error +0.19 m</text>
+<text x="583" y="715" font-family="Arial" font-size="15" fill="#334155">touchdown speed 0.87 m/s</text>
+<text x="583" y="741" font-family="Arial" font-size="15" fill="#334155">mean NEES 5.00</text>
+<text x="583" y="767" font-family="Arial" font-size="15" font-weight="700" fill="#059669">PASS</text>
+<text x="583" y="809" font-family="Arial" font-size="14" font-weight="400" fill="#334155">The vehicle coasts on strapdown IMU propagation.</text>
+<text x="583" y="831" font-family="Arial" font-size="14" font-weight="400" fill="#334155">Accelerometer-bias uncertainty drives position-error</text>
+<text x="583" y="853" font-family="Arial" font-size="14" font-weight="400" fill="#334155">growth proportional to time squared. Radar still</text>
+<text x="583" y="875" font-family="Arial" font-size="14" font-weight="400" fill="#334155">bounds altitude, and GPS reacquisition removes drift.</text>
+<rect x="1020" y="613" width="420" height="320" rx="6" fill="#ffffff" stroke="#cbd5e1"/>
+<rect x="1020" y="613" width="8" height="320" fill="#059669"/>
+<text x="1048" y="651" font-family="Arial" font-size="18" font-weight="700" fill="#0f172a">12 m radar bias step at 12 s</text>
+<text x="1048" y="689" font-family="Arial" font-size="15" fill="#334155">landing error -0.03 m</text>
+<text x="1048" y="715" font-family="Arial" font-size="15" fill="#334155">touchdown speed 0.80 m/s</text>
+<text x="1048" y="741" font-family="Arial" font-size="15" fill="#334155">mean NEES 5.94</text>
+<text x="1048" y="767" font-family="Arial" font-size="15" font-weight="700" fill="#059669">PASS</text>
+<text x="1048" y="809" font-family="Arial" font-size="14" font-weight="400" fill="#334155">The step produces a large scalar innovation. Its NIS</text>
+<text x="1048" y="831" font-family="Arial" font-size="14" font-weight="400" fill="#334155">exceeds the chi-square gate, so the radar correction</text>
+<text x="1048" y="853" font-family="Arial" font-size="14" font-weight="400" fill="#334155">is rejected while GPS carries altitude observability.</text>
+<text x="1048" y="903" font-family="Arial" font-size="14" fill="#334155">radar updates rejected: 344</text>
+<text x="90" y="990" font-family="Arial" font-size="14" font-weight="400" fill="#64748b">Verification boundary: passing these software-in-the-loop cases does not establish flight readiness; unmodeled sensor latency, terrain-relative navigation, six-DOF coupling, and hardware timing remain.</text>
+</svg>
