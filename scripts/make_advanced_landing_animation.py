@@ -69,7 +69,15 @@ def main():
     .estimate {{ fill:var(--estimate); opacity:.72; }}
     .thrust {{ stroke:var(--thrust); stroke-width:4; stroke-linecap:round; }}
     .explanation {{ margin:18px 0 0; max-width:980px; }}
-    @media (max-width:760px) {{ main {{ padding:16px; }} .stats {{ grid-template-columns:1fr 1fr; }} label,input {{ width:100%; }} }}
+    .live-physics,.physics-grid {{ display:grid; gap:12px; margin-top:14px; }}
+    .live-physics {{ grid-template-columns:180px 1fr; border:1px solid var(--border); border-radius:6px; padding:14px; background:var(--panel); }}
+    .live-physics b {{ font-size:18px; }}
+    .live-physics p {{ margin:0; color:var(--muted); line-height:1.5; }}
+    .physics-grid {{ grid-template-columns:repeat(3,minmax(0,1fr)); }}
+    .physics-grid section {{ border-top:2px solid var(--border); padding:12px 4px 0; }}
+    .physics-grid h2 {{ margin:0 0 7px; font-size:16px; }}
+    .physics-grid p {{ margin:0; color:var(--muted); font-size:14px; line-height:1.5; }}
+    @media (max-width:760px) {{ main {{ padding:16px; }} .stats {{ grid-template-columns:1fr 1fr; }} .live-physics,.physics-grid {{ grid-template-columns:1fr; }} label,input {{ width:100%; }} }}
   </style>
 </head>
 <body>
@@ -106,7 +114,25 @@ def main():
       <line x1="748" y1="66" x2="774" y2="66" stroke="var(--truth)" stroke-width="3"/><text x="783" y="71" class="muted">true trajectory</text>
       <line x1="748" y1="91" x2="774" y2="91" stroke="var(--estimate)" stroke-width="2" stroke-dasharray="7 5"/><text x="783" y="96" class="muted">navigation estimate</text>
     </svg>
-    <p class="explanation"><strong>Physical interpretation.</strong> The target is shifted outside the debris interval before terminal descent. Horizontal correction is performed while altitude still provides time-to-go, limiting late tilt and preserving the vertical component of thrust. The dashed navigation trajectory differs from truth because bias, sample noise, and estimator dynamics enter the feedback loop; the vehicle nevertheless touches down {metrics['hazard_clearance_m']:.2f} m from the nearest hazard edge with {metrics['propellant_remaining_kg']:.0f} kg of modeled propellant remaining.</p>
+    <section class="live-physics" aria-live="polite">
+      <b id="phaseTitle">Divert acquisition</b>
+      <p id="phaseText">The guidance law tilts the thrust vector early, while time-to-go is large, to build the lateral impulse required by the new target.</p>
+    </section>
+    <div class="physics-grid">
+      <section>
+        <h2>Why the path is S-shaped</h2>
+        <p>The first bend creates lateral impulse through a_x = T sin(theta)/m. The second reverses lateral acceleration so horizontal velocity is arrested before touchdown rather than carried through the target.</p>
+      </section>
+      <section>
+        <h2>Why tilt is reduced late</h2>
+        <p>Tilting spends the shared thrust vector on crossrange control and reduces vertical authority to T cos(theta). The terminal corridor therefore tightens attitude demand as vertical kinetic-energy removal becomes dominant.</p>
+      </section>
+      <section>
+        <h2>Why purple is jagged</h2>
+        <p>The dashed line is an estimated state, not a second trajectory. Discrete noisy measurements produce innovation corrections, while the blue truth state evolves continuously under the integrated rigid-body equations.</p>
+      </section>
+    </div>
+    <p class="explanation"><strong>Verified outcome.</strong> The selected target is x = {metrics['target_x_m']:.1f} m, outside the [-4, 4] m debris interval. The vehicle lands at x = {metrics['landing_x_m']:.2f} m with target error {metrics['landing_x_error_m']:.2f} m, touchdown speed {metrics['touchdown_speed_mps']:.2f} m/s, hazard clearance {metrics['hazard_clearance_m']:.2f} m, and {metrics['propellant_remaining_kg']:.0f} kg of modeled propellant remaining.</p>
   </main>
   <script>
     const rows={payload};
@@ -121,11 +147,19 @@ def main():
     const trueTrail=document.getElementById('trueTrail'), estTrail=document.getElementById('estTrail');
     const slider=document.getElementById('slider'), play=document.getElementById('play'), speed=document.getElementById('speed');
     const alt=document.getElementById('alt'), err=document.getElementById('err'), vel=document.getElementById('vel'), thr=document.getElementById('thr'), nav=document.getElementById('nav');
+    const phaseTitle=document.getElementById('phaseTitle'), phaseText=document.getElementById('phaseText');
     const hazardRect=document.getElementById('hazard'), hazardLabel=document.getElementById('hazardLabel'), pad=document.getElementById('pad'), padLabel=document.getElementById('padLabel');
     hazardRect.setAttribute('x',sx(hazard.left)); hazardRect.setAttribute('width',sx(hazard.right)-sx(hazard.left)); hazardLabel.setAttribute('x',sx(hazard.left));
     pad.setAttribute('x',sx(target)-31); padLabel.setAttribute('x',sx(target)-58);
     let playing=true,idx=0,last=performance.now();
     function path(keyX,keyZ,end){{return rows.slice(0,end+1).map((r,i)=>`${{i?'L':'M'}}${{sx(r[keyX]).toFixed(1)}},${{sy(r[keyZ]).toFixed(1)}}`).join(' ')}}
+    function phase(r){{
+      const ratio=r.z_m/Math.max(zmax,1);
+      if(ratio>0.68)return['Divert acquisition','Early tilt builds lateral impulse while time-to-go is large, avoiding an authority-intensive correction near touchdown.'];
+      if(ratio>0.25)return['Crossrange braking','The lateral acceleration changes sign. This counter-tilt removes horizontal velocity so the vehicle can approach the selected target without overshoot.'];
+      if(ratio>0.06)return['Terminal alignment','The allowable tilt contracts, restoring vertical thrust projection T cos(theta) for descent-energy removal while residual target error is closed.'];
+      return['Touchdown shaping','Finite throttle and gimbal dynamics now limit correction rate; the controller regulates vertical speed and drives lateral velocity toward zero.'];
+    }}
     function frame(i){{
       idx=Math.max(0,Math.min(rows.length-1,i)); const r=rows[idx];
       vehicle.setAttribute('transform',`translate(${{sx(r.x_m).toFixed(1)}} ${{sy(r.z_m).toFixed(1)}}) rotate(${{r.theta_deg.toFixed(2)}})`);
@@ -134,6 +168,7 @@ def main():
       alt.textContent=`${{r.z_m.toFixed(1)}} m`; err.textContent=`${{r.target_error_m.toFixed(2)}} m`;
       vel.textContent=`${{Math.hypot(r.vx_mps,r.vz_mps).toFixed(2)}} m/s`; thr.textContent=`${{Math.round(r.throttle*100)}}%`;
       nav.textContent=`${{Math.hypot(r.estimated_x_m-r.x_m,r.estimated_z_m-r.z_m).toFixed(2)}} m`;
+      const currentPhase=phase(r); phaseTitle.textContent=currentPhase[0]; phaseText.textContent=currentPhase[1];
       slider.value=Math.round(idx/(rows.length-1)*1000);
     }}
     function tick(now){{const dt=now-last;last=now;if(playing&&dt>0){{frame((idx+Math.max(1,Math.round(dt/55*Number(speed.value))))%rows.length)}}requestAnimationFrame(tick)}}

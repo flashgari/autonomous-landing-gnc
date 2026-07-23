@@ -18,7 +18,9 @@ This separation makes the assumptions auditable. The hazard layer decides *where
 
 The vehicle touches down at `x = 9.47 m`, giving `5.47 m` clearance from the nearest debris edge. Its target-relative error is `-2.53 m`, touchdown speed is `1.09 m/s`, and modeled propellant remaining is `2942 kg`.
 
-The maneuver works because the target is selected early. Lateral acceleration is accumulated while substantial altitude and time-to-go remain. Near touchdown, the corridor guidance law reduces allowed tilt so vertical braking retains priority through the $T\cos\theta$ projection.
+The maneuver works because the target is selected early. Lateral acceleration is accumulated while substantial altitude and time-to-go remain. The trajectory then counter-curves to remove the lateral velocity created during divert acquisition. Near touchdown, the corridor guidance law reduces allowed tilt so vertical braking retains priority through the $T\cos\theta$ projection.
+
+In the animation, the blue line is the integrated vehicle truth state and the purple dashed line is the estimated state used by guidance. The discrete purple jumps are measurement-update corrections, not physical vehicle motion. Their relevance is closed-loop: an estimation error perturbs target error and time-to-go, guidance converts that perturbation into desired acceleration, and actuator delay and slew limits determine how much of the correction reaches the vehicle before the terminal corridor closes.
 
 ## Divert Demand and Propellant
 

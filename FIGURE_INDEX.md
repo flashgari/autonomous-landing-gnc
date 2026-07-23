@@ -6,13 +6,17 @@ Use this page for a fast technical review. Every figure is generated from commit
 
 **[Open the interactive landing animation](media/hazard_divert_landing_animation.html)**
 
-The true and estimated trajectories separate because measurement bias, sample noise, and filter dynamics sit inside the feedback loop. The selected target is outside the debris interval, and the vehicle lands `5.47 m` from the nearest hazard edge. Early retargeting allows lateral impulse to accumulate before terminal tilt limits protect vertical braking.
+Blue is the continuous integrated truth state; purple is the discrete navigation estimate supplied to guidance. The purple corrections are estimator innovations produced by noisy sampled measurements, not physical vehicle zigzags.
+
+The green target is at `x = 12 m`, outside the `[-4, 4] m` debris interval. The S-shaped path is the expected geometry of a lateral impulse-and-brake maneuver. The first curvature builds lateral velocity through $a_x=T\sin\theta/m$; the second reverses lateral acceleration to remove that velocity before touchdown. As altitude decreases, corridor guidance reduces allowable tilt so $T\cos\theta$ is recovered for vertical-energy removal. The result is `2.53 m` target error, `1.09 m/s` touchdown speed, and `5.47 m` hazard clearance.
 
 ## 2. Guidance Mode Comparison
 
 ![Guidance mode comparison](figures/guidance_mode_comparison.svg)
 
-Success rises from `46.5%` to `92.0%` on identical dispersions. The result comes from moving lateral correction earlier and reducing late tilt demand; maximum control deflection does not increase. This is temporal allocation of a coupled thrust vector, not simply higher gain.
+Success rises from `46.5%` to `92.0%` on identical dispersions. The p95 touchdown speed falls from `2.66 m/s` to `0.82 m/s`, while maximum tilt and gimbal both decrease slightly. This rules out increased control amplitude as the explanation.
+
+The mechanism is altitude scheduling. Baseline guidance carries too much crossrange demand into the terminal phase, where tilting the vehicle reduces vertical thrust projection and competes with descent-rate control. Corridor guidance generates the lateral impulse earlier, when time-to-go is larger, then constrains late tilt. The shift from pad and vertical-speed failures to `184/200` successes is therefore a coupled energy-management and control-allocation result.
 
 ## 3. Navigation Estimation Comparison
 
@@ -24,7 +28,11 @@ Truth-state feedback with finite actuators succeeds in `95.0%` of the 200 cases;
 
 ![Advanced scenario comparison](figures/advanced_scenario_comparison.svg)
 
-The altitude-bias case survives after `435` rejected innovations but spends additional propellant through longer flight time. The thrust-loss case misses the pad with fuel remaining, identifying a finite-time control-authority boundary. The hazard case passes both target-relative and geometric-clearance requirements.
+The trajectories initially overlap because their initial states, navigation realization, guidance law, and actuator model are identical. They diverge only after a fault changes delivered thrust or measured altitude, or after hazard logic selects a different target.
+
+The `8%` thrust decrement remains recoverable; the `18%` decrement crosses the finite-time reachable-set boundary and lands `4.86 m` from target. Its `3304 kg` residual propellant is not contradictory: reduced delivered thrust also reduces mass flow, and the vehicle reaches the ground `4.80 s` before nominal. Fuel inventory is not equivalent to acceleration authority integrated over the remaining time-to-go.
+
+The `+12 m` altitude step is rejected `435` times by innovation gating. The estimator remains bounded, but the descent extends to `50.55 s`, adding gravity loss and consuming about `454 kg` more propellant than nominal. The green hazard-divert path uses an early acceleration and later counter-acceleration to reach a safe site while suppressing touchdown lateral velocity.
 
 ## 5. Divert Demand and Propellant
 

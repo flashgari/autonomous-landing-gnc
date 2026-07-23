@@ -47,6 +47,14 @@ The truth-feedback Monte Carlo success rate changes from `92.0%` with ideal actu
 | 18% thrust-loss step | fail | `-4.86 m` | `1.96 m/s` | `3304 kg` |
 | +12 m altitude-bias fault | pass | `0.28 m` | `0.80 m/s` | `2484 kg` |
 
+## How to Read the Trajectory Overlay
+
+The horizontal axis is downrange position, not time, so the curve slope $dz/dx$ should not be interpreted as vertical speed. Time advances from the common point near $(x,z)=(18,720)$ toward the touchdown markers at $z=0$. The nominal, thrust-loss, and altitude-bias trajectories overlap at first because they use identical initial states, navigation noise, guidance, and actuator states. Separation begins only after the thrust step at `t = 5 s` or the altitude-bias step at `t = 7 s`.
+
+The green hazard-divert curve differs from the beginning because its commanded target is changed from `x = 0 m` to `x = 12 m`. Its S-shape shows two dynamically distinct phases. The first curvature generates lateral impulse toward the safe target. The later counter-curvature reverses lateral acceleration to reduce $v_x$ before touchdown. A monotonic curve toward the target would generally retain excessive lateral velocity and violate the terminal constraint even if final position were acceptable.
+
+The touchdown dots must be read with the constraint audit rather than by geometric appearance alone. A trajectory passes only if position, both velocity components, maximum tilt, and propellant conditions are satisfied simultaneously. The `18%` thrust-loss path, for example, reaches the ground with acceptable component velocities but fails because $|e_x|=4.86$ m exceeds the `3 m` corridor.
+
 ## Thrust-Loss Interpretation
 
 At `t = 5 s`, delivered thrust is reduced in two cases. A reduction to `92%` remains recoverable and lands inside the terminal corridor. A reduction to `82%` crosses the pad-error limit. In a lumped single-engine model these cases represent equivalent engine-cluster authority loss; they are not detailed multi-engine allocation models.

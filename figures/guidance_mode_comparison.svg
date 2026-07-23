@@ -1,44 +1,52 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="980" height="620" viewBox="0 0 980 620" role="img">
+<svg xmlns="http://www.w3.org/2000/svg" width="1120" height="820" viewBox="0 0 1120 820" role="img">
 <title>Baseline versus corridor guidance Monte Carlo comparison</title>
 <rect width="100%" height="100%" fill="#f8fafc"/>
 <text x="52" y="42" font-family="Arial" font-size="24" font-weight="700" fill="#0f172a">Guidance Mode Monte Carlo Comparison</text>
 <text x="52" y="66" font-family="Arial" font-size="14" fill="#475569">Same 200 dispersions and seed 4242: baseline guidance vs corridor guidance.</text>
-<text x="52" y="102" font-family="Arial" font-size="16" font-weight="700" fill="#0f172a">success rate</text>
-<rect x="94" y="112" width="399.3" height="24" fill="#dc2626" opacity="0.82"/>
-<rect x="94" y="144" width="790.0" height="24" fill="#059669" opacity="0.86"/>
-<text x="501.3" y="129" font-family="Arial" font-size="13" fill="#334155">baseline 46.50 %</text>
-<text x="892.0" y="161" font-family="Arial" font-size="13" fill="#334155">corridor 92.00 %</text>
-<text x="52" y="188" font-family="Arial" font-size="16" font-weight="700" fill="#0f172a">p95 |landing error|</text>
-<rect x="94" y="198" width="669.5" height="24" fill="#dc2626" opacity="0.82"/>
-<rect x="94" y="230" width="461.6" height="24" fill="#059669" opacity="0.86"/>
-<text x="771.5" y="215" font-family="Arial" font-size="13" fill="#334155">baseline 5.26 m</text>
-<text x="563.6" y="247" font-family="Arial" font-size="13" fill="#334155">corridor 3.63 m</text>
-<text x="52" y="274" font-family="Arial" font-size="16" font-weight="700" fill="#0f172a">p95 touchdown speed</text>
-<rect x="94" y="284" width="669.5" height="24" fill="#dc2626" opacity="0.82"/>
-<rect x="94" y="316" width="207.0" height="24" fill="#059669" opacity="0.86"/>
-<text x="771.5" y="301" font-family="Arial" font-size="13" fill="#334155">baseline 2.66 m/s</text>
-<text x="309.0" y="333" font-family="Arial" font-size="13" fill="#334155">corridor 0.82 m/s</text>
-<text x="52" y="360" font-family="Arial" font-size="16" font-weight="700" fill="#0f172a">max tilt</text>
-<rect x="94" y="370" width="669.5" height="24" fill="#dc2626" opacity="0.82"/>
-<rect x="94" y="402" width="653.5" height="24" fill="#059669" opacity="0.86"/>
-<text x="771.5" y="387" font-family="Arial" font-size="13" fill="#334155">baseline 6.06 deg</text>
-<text x="755.5" y="419" font-family="Arial" font-size="13" fill="#334155">corridor 5.92 deg</text>
-<text x="52" y="446" font-family="Arial" font-size="16" font-weight="700" fill="#0f172a">max gimbal</text>
-<rect x="94" y="456" width="669.5" height="24" fill="#dc2626" opacity="0.82"/>
-<rect x="94" y="488" width="653.0" height="24" fill="#059669" opacity="0.86"/>
-<text x="771.5" y="473" font-family="Arial" font-size="13" fill="#334155">baseline 5.19 deg</text>
-<text x="755.0" y="505" font-family="Arial" font-size="13" fill="#334155">corridor 5.07 deg</text>
-<text x="52" y="554" font-family="Arial" font-size="18" font-weight="700" fill="#0f172a">Failure mode shift</text>
-<text x="52" y="600" font-family="Arial" font-size="14" font-weight="700" fill="#0f172a">baseline</text>
-<rect x="144" y="582" width="80.0" height="24" fill="#dc2626" opacity="0.82"/>
-<text x="149" y="599" font-family="Arial" font-size="11" fill="#ffffff">pad_miss: 50</text>
-<rect x="224.0" y="582" width="148.8" height="24" fill="#059669" opacity="0.82"/>
-<text x="229.0" y="599" font-family="Arial" font-size="11" fill="#ffffff">success: 93</text>
-<rect x="372.8" y="582" width="91.2" height="24" fill="#dc2626" opacity="0.82"/>
-<text x="377.8" y="599" font-family="Arial" font-size="11" fill="#ffffff">vertical_speed: 57</text>
-<text x="52" y="638" font-family="Arial" font-size="14" font-weight="700" fill="#0f172a">corridor</text>
-<rect x="144" y="620" width="25.6" height="24" fill="#059669" opacity="0.82"/>
-<rect x="169.6" y="620" width="294.4" height="24" fill="#059669" opacity="0.82"/>
-<text x="174.6" y="637" font-family="Arial" font-size="11" fill="#ffffff">success: 184</text>
-<text x="52" y="590" font-family="Arial" font-size="14" fill="#475569">Corridor guidance changes success rate by +45.5 percentage points and reduces p95 touchdown speed by 1.84 m/s.</text>
+<rect x="850" y="25" width="218" height="54" rx="4" fill="#ffffff" stroke="#cbd5e1"/>
+<text x="864" y="47" font-family="Arial" font-size="12" font-weight="700" fill="#0f172a">Terminal requirements</text>
+<text x="864" y="66" font-family="Arial" font-size="11" fill="#475569">|e_x| &lt; 3 m; |v_x| &lt; 1 m/s; |v_z| &lt; 2.5 m/s</text>
+<text x="52" y="116" font-family="Arial" font-size="16" font-weight="700" fill="#0f172a">success rate</text>
+<rect x="100" y="126" width="334.0" height="24" fill="#dc2626" opacity="0.82"/>
+<rect x="100" y="158" width="660.9" height="24" fill="#059669" opacity="0.86"/>
+<text x="442.0" y="143" font-family="Arial" font-size="13" fill="#334155">baseline 46.50 %</text>
+<text x="768.9" y="175" font-family="Arial" font-size="13" fill="#334155">corridor 92.00 %</text>
+<text x="52" y="204" font-family="Arial" font-size="16" font-weight="700" fill="#0f172a">p95 |landing error|</text>
+<rect x="100" y="214" width="660.9" height="24" fill="#dc2626" opacity="0.82"/>
+<rect x="100" y="246" width="455.7" height="24" fill="#059669" opacity="0.86"/>
+<text x="768.9" y="231" font-family="Arial" font-size="13" fill="#334155">baseline 5.26 m</text>
+<text x="563.7" y="263" font-family="Arial" font-size="13" fill="#334155">corridor 3.63 m</text>
+<text x="52" y="292" font-family="Arial" font-size="16" font-weight="700" fill="#0f172a">p95 touchdown speed</text>
+<rect x="100" y="302" width="660.9" height="24" fill="#dc2626" opacity="0.82"/>
+<rect x="100" y="334" width="204.3" height="24" fill="#059669" opacity="0.86"/>
+<text x="768.9" y="319" font-family="Arial" font-size="13" fill="#334155">baseline 2.66 m/s</text>
+<text x="312.3" y="351" font-family="Arial" font-size="13" fill="#334155">corridor 0.82 m/s</text>
+<text x="52" y="380" font-family="Arial" font-size="16" font-weight="700" fill="#0f172a">max tilt</text>
+<rect x="100" y="390" width="660.9" height="24" fill="#dc2626" opacity="0.82"/>
+<rect x="100" y="422" width="645.1" height="24" fill="#059669" opacity="0.86"/>
+<text x="768.9" y="407" font-family="Arial" font-size="13" fill="#334155">baseline 6.06 deg</text>
+<text x="753.1" y="439" font-family="Arial" font-size="13" fill="#334155">corridor 5.92 deg</text>
+<text x="52" y="468" font-family="Arial" font-size="16" font-weight="700" fill="#0f172a">max gimbal</text>
+<rect x="100" y="478" width="660.9" height="24" fill="#dc2626" opacity="0.82"/>
+<rect x="100" y="510" width="644.6" height="24" fill="#059669" opacity="0.86"/>
+<text x="768.9" y="495" font-family="Arial" font-size="13" fill="#334155">baseline 5.19 deg</text>
+<text x="752.6" y="527" font-family="Arial" font-size="13" fill="#334155">corridor 5.07 deg</text>
+<text x="52" y="578" font-family="Arial" font-size="18" font-weight="700" fill="#0f172a">Failure mode shift</text>
+<text x="250" y="578" font-family="Arial" font-size="12" fill="#475569">Counts from the same 200 initial-condition and model-parameter dispersions</text>
+<text x="52" y="620" font-family="Arial" font-size="14" font-weight="700" fill="#0f172a">baseline</text>
+<rect x="144" y="602" width="155.0" height="24" fill="#dc2626" opacity="0.82"/>
+<text x="149" y="619" font-family="Arial" font-size="11" fill="#ffffff">pad miss: 50</text>
+<rect x="299.0" y="602" width="288.3" height="24" fill="#059669" opacity="0.82"/>
+<text x="304.0" y="619" font-family="Arial" font-size="11" fill="#ffffff">success: 93</text>
+<rect x="587.3" y="602" width="176.7" height="24" fill="#f59e0b" opacity="0.82"/>
+<text x="592.3" y="619" font-family="Arial" font-size="11" fill="#ffffff">vertical speed: 57</text>
+<text x="52" y="654" font-family="Arial" font-size="14" font-weight="700" fill="#0f172a">corridor</text>
+<rect x="144" y="636" width="49.6" height="24" fill="#dc2626" opacity="0.82"/>
+<text x="168.8" y="653" text-anchor="middle" font-family="Arial" font-size="11" font-weight="700" fill="#ffffff">16</text>
+<rect x="193.6" y="636" width="570.4" height="24" fill="#059669" opacity="0.82"/>
+<text x="198.6" y="653" font-family="Arial" font-size="11" fill="#ffffff">success: 184</text>
+<rect x="52" y="722" width="1016" height="72" rx="4" fill="#ffffff" stroke="#cbd5e1"/>
+<text x="68" y="744" font-family="Arial" font-size="14" font-weight="700" fill="#0f172a">Physical interpretation</text>
+<text x="68" y="765" font-family="Arial" font-size="12.5" fill="#334155">Success increases by +45.5 points and p95 touchdown speed falls by 1.84 m/s while peak tilt and gimbal both decrease.</text>
+<text x="68" y="784" font-family="Arial" font-size="12.5" fill="#334155">The gain therefore comes from altitude-scheduled allocation: early lateral impulse reduces late tilt demand, preserving T cos(theta) for terminal vertical-energy removal.</text>
 </svg>
