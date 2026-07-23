@@ -58,9 +58,45 @@ A same-condition target sweep shows nearly constant propellant consumption acros
 
 A 30-point terminal-condition grid samples altitude and crossrange. It provides evidence of the closed-loop feasible region but is not claimed as a formal reachable set. The nonmonotonic boundary reflects variation in initial descent energy and guidance/actuator phase.
 
+## Constrained Predictive Guidance
+
+The final guidance phase converts the high-altitude landing problem into a
+12-node direct-transcription QP. Future positions and velocities are condensed
+analytically into horizontal and vertical acceleration decisions. The
+objective tracks cubic state references and terminal conditions while
+penalizing acceleration and acceleration slew.
+
+The optimizer enforces a linear tilt cone, a conservative 12-sided
+approximation to the maximum-thrust disk, nonnegative altitude, acceleration
+slew, and a terrain-relative glide slope. It replans every `0.60 s` using the
+ESKF state. Below `160 m`, it hands off to corridor guidance so the previously
+verified terminal law manages minimum-throttle switching and actuator lag.
+The architecture is therefore a planar convex relaxation with hybrid
+supervision, not a claim of lossless 6-DOF powered-descent convexification.
+
+On the same 200 ESKF/actuator dispersions, predictive guidance succeeds in
+`195 / 200` cases versus `186 / 200` for corridor guidance. P95 absolute pad
+error decreases from `3.18 m` to `2.63 m`, while p95 touchdown speed changes
+from `0.92 m/s` to `0.96 m/s`. The remaining five failures are pad misses,
+which preserves a visible finite-time lateral-authority boundary.
+
+The `48 m` deterministic divert identifies the active physics. Its
+glide-slope margin approaches zero while tilt and maximum-thrust margins
+remain positive. The vehicle succeeds by spreading lateral acceleration and
+counter-acceleration over the available time-to-go, not by saturating control.
+The adjacent `50 m` case fails the `3 m` footprint criterion, so the result is
+reported as a sampled, locally nonmonotonic closed-loop boundary.
+
+The in-repository ADMM solver exposes both primal/dual optimality residuals and
+independently evaluated constraint violation. Across the campaign, `99.90%`
+of replans are accepted as feasible, `74.22%` meet the tighter strict
+convergence test, and four replans use deterministic corridor fallback. The
+largest rejected-iterate violation remains in the output rather than being
+filtered from the portfolio evidence.
+
 ## Verification Summary
 
-- `15` deterministic unit and system tests cover dynamics, guidance, Monte Carlo reproducibility, both estimator architectures, covariance propagation, innovation rejection, sensor dropout, actuator rates, hazard geometry, and advanced scenarios.
+- `18` deterministic unit and system tests cover dynamics, both guidance architectures, QP transcription and feasibility, Monte Carlo reproducibility, both estimator architectures, covariance propagation, innovation rejection, sensor dropout, actuator rates, hazard geometry, and advanced scenarios.
 - All plotted evidence is regenerated from committed CSV/JSON outputs.
 - Monte Carlo campaigns use a fixed seed and identical dispersion draws for controlled comparisons.
 - Failure cases are retained and explained rather than removed from the presentation.
@@ -68,8 +104,8 @@ A 30-point terminal-condition grid samples altitude and crossrange. It provides 
 
 ## What I Would Improve Next
 
-1. Replace heuristic corridor guidance with a constrained optimizer or MPC formulation that handles thrust, tilt, glide-slope, and terminal-state limits explicitly.
-2. Extend the plant and ESKF to 6-DOF with a 15-state inertial error model, engine allocation, aerodynamic moments, inertia variation, and mass-property motion.
+1. Extend the plant and ESKF to 6-DOF with a 15-state inertial error model, engine allocation, aerodynamic moments, inertia variation, and mass-property motion.
+2. Upgrade the convex predictor to successive convexification with mass and attitude states, trust regions, virtual controls, and measured solve-time deadlines.
 3. Add terrain-relative sensing and probabilistic hazard-map uncertainty.
 4. Add timestamp jitter, delayed measurements, out-of-sequence updates, and processor timing.
 5. Build a hardware-in-the-loop version using the separate two-axis TVC test-stand project.

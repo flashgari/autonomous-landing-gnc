@@ -41,6 +41,38 @@ class Guidance:
 
 
 @dataclass(frozen=True)
+class PredictiveGuidanceConfig:
+    """Finite-horizon constrained acceleration-guidance configuration."""
+
+    horizon_steps: int = 12
+    replan_period_s: float = 0.60
+    minimum_horizon_s: float = 2.0
+    maximum_horizon_s: float = 30.0
+    terminal_handoff_altitude_m: float = 160.0
+    terminal_descent_mps: float = 0.75
+    maximum_tilt_rad: float = 0.140
+    glide_slope_ratio: float = 0.10
+    glide_slope_base_m: float = 2.0
+    maximum_ax_step_mps2: float = 2.2
+    maximum_az_step_mps2: float = 8.0
+    position_weight: float = 0.10
+    velocity_weight: float = 0.35
+    terminal_position_weight: float = 42.0
+    terminal_velocity_weight: float = 34.0
+    vertical_position_weight: float = 0.14
+    vertical_velocity_weight: float = 0.45
+    vertical_terminal_position_weight: float = 55.0
+    vertical_terminal_velocity_weight: float = 48.0
+    acceleration_weight: float = 0.035
+    thrust_regularization_weight: float = 0.006
+    slew_weight: float = 0.18
+    admm_rho: float = 1.0
+    admm_max_iterations: int = 90
+    admm_absolute_tolerance: float = 0.025
+    accepted_constraint_violation: float = 0.10
+
+
+@dataclass(frozen=True)
 class AttitudeControl:
     kp: float = 0.55
     kd: float = 1.65

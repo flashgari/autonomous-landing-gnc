@@ -8,6 +8,7 @@ from dataclasses import asdict
 from pathlib import Path
 
 from .actuators import ActuatorStack
+from .constrained_guidance import PredictiveGuidanceController
 from .dynamics import derivatives, rk4_step
 from .ekf import EkfSensorSuite, ErrorStateEkf
 from .guidance import corridor_guidance_command, guidance_command
@@ -21,6 +22,7 @@ from .models import (
     EstimatorConfig,
     FaultScenario,
     Guidance,
+    PredictiveGuidanceConfig,
     SensorModel,
     State,
     Vehicle,
@@ -56,6 +58,7 @@ def run_simulation(
     estimator_config: EstimatorConfig | None = None,
     ekf_sensor_model: EkfSensorModel | None = None,
     ekf_config: EkfConfig | None = None,
+    predictive_guidance_config: PredictiveGuidanceConfig | None = None,
     actuator_model: ActuatorModel | None = None,
     fault: FaultScenario | None = None,
     rng_seed: int = 0,
@@ -69,6 +72,9 @@ def run_simulation(
     estimator_config = estimator_config or EstimatorConfig()
     ekf_sensor_model = ekf_sensor_model or EkfSensorModel()
     ekf_config = ekf_config or EkfConfig()
+    predictive_guidance_config = (
+        predictive_guidance_config or PredictiveGuidanceConfig()
+    )
     actuator_model = actuator_model or ActuatorModel()
     fault = fault or FaultScenario()
     state = initial_state or default_initial_state(vehicle)
@@ -88,8 +94,12 @@ def run_simulation(
         fault,
     )
     ekf_estimator = ErrorStateEkf(ekf_config, env.gravity_mps2)
+    predictive_controller = PredictiveGuidanceController(
+        predictive_guidance_config
+    )
     estimated_state = None
     ekf_diagnostics: dict[str, float] = {}
+    optimizer_diagnostics: dict[str, float] = {}
     next_measurement_time_s = 0.0
     next_gps_time_s = 0.0
     next_radar_time_s = 0.0
@@ -180,6 +190,17 @@ def run_simulation(
                 attitude,
                 target_x_m=target_x_m,
             )
+        elif guidance_mode == "predictive":
+            predictive_result = predictive_controller.command(
+                guidance_state,
+                vehicle,
+                env,
+                guidance,
+                attitude,
+                target_x_m=target_x_m,
+            )
+            commanded = predictive_result.command
+            optimizer_diagnostics = predictive_result.diagnostics
         else:
             raise ValueError(f"unknown guidance_mode: {guidance_mode}")
 
@@ -211,6 +232,7 @@ def run_simulation(
                     else 0
                 ),
                 ekf_diagnostics,
+                optimizer_diagnostics,
             )
         )
         if state.z_m <= 0.0 and state.vz_mps <= 0.0:
@@ -223,6 +245,8 @@ def run_simulation(
     metrics = compute_metrics(rows, vehicle, target_x_m)
     if navigation_mode == "ekf":
         metrics.update(ekf_estimator.summary())
+    if guidance_mode == "predictive":
+        metrics.update(predictive_controller.summary())
     config = {
         "vehicle": asdict(vehicle),
         "environment": asdict(env),
@@ -232,6 +256,7 @@ def run_simulation(
         "estimator": asdict(estimator_config),
         "ekf_sensor_model": asdict(ekf_sensor_model),
         "ekf": asdict(ekf_config),
+        "predictive_guidance": asdict(predictive_guidance_config),
         "actuator_model": asdict(actuator_model),
         "fault": asdict(fault),
         "initial_state": asdict(initial_state or default_initial_state(vehicle)),
@@ -254,6 +279,7 @@ def row_from_state_command(
     thrust_scale: float,
     navigation_rejection_count: int,
     ekf_diagnostics: dict[str, float] | None = None,
+    optimizer_diagnostics: dict[str, float] | None = None,
 ) -> dict:
     prop_remaining = max(0.0, state.mass_kg - vehicle.dry_mass_kg)
     row = {
@@ -300,6 +326,8 @@ def row_from_state_command(
         )
     if ekf_diagnostics:
         row.update(ekf_diagnostics)
+    if optimizer_diagnostics:
+        row.update(optimizer_diagnostics)
     return row
 
 
@@ -361,6 +389,62 @@ def compute_metrics(rows, vehicle: Vehicle, target_x_m: float = 0.0) -> dict:
                 "ekf_bax_3sigma_coverage": finite_mean(rows, "ekf_bax_inside_3sigma"),
                 "ekf_baz_3sigma_coverage": finite_mean(rows, "ekf_baz_inside_3sigma"),
                 "ekf_bg_3sigma_coverage": finite_mean(rows, "ekf_bg_inside_3sigma"),
+            }
+        )
+    if "optimizer_converged" in final:
+        optimizer_rows = [
+            row
+            for row in rows
+            if row["optimizer_replanned"] > 0.5
+            and row["optimizer_terminal_handoff"] < 0.5
+        ]
+        metrics.update(
+            {
+                "optimizer_replan_count_from_rows": len(optimizer_rows),
+                "optimizer_fallback_fraction": finite_mean(
+                    optimizer_rows,
+                    "optimizer_fallback",
+                ),
+                "optimizer_tilt_active_fraction": finite_mean(
+                    optimizer_rows,
+                    "optimizer_tilt_constraint_active",
+                ),
+                "optimizer_thrust_active_fraction": finite_mean(
+                    optimizer_rows,
+                    "optimizer_thrust_constraint_active",
+                ),
+                "optimizer_glideslope_active_fraction": finite_mean(
+                    optimizer_rows,
+                    "optimizer_glideslope_constraint_active",
+                ),
+                "optimizer_max_constraint_violation": max(
+                    (
+                        row["optimizer_max_constraint_violation"]
+                        for row in optimizer_rows
+                    ),
+                    default=math.nan,
+                ),
+                "optimizer_min_tilt_margin_deg": min(
+                    (
+                        row["optimizer_minimum_tilt_margin_deg"]
+                        for row in optimizer_rows
+                    ),
+                    default=math.nan,
+                ),
+                "optimizer_min_thrust_margin_mps2": min(
+                    (
+                        row["optimizer_minimum_thrust_margin_mps2"]
+                        for row in optimizer_rows
+                    ),
+                    default=math.nan,
+                ),
+                "optimizer_min_glideslope_margin_m": min(
+                    (
+                        row["optimizer_minimum_glideslope_margin_m"]
+                        for row in optimizer_rows
+                    ),
+                    default=math.nan,
+                ),
             }
         )
     return metrics

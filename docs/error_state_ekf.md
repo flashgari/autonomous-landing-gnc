@@ -218,4 +218,10 @@ This is a planar software-in-the-loop navigation model. It does not include:
 - sensor correlation, delayed/out-of-sequence updates, or federated fault management;
 - hardware timing, quantization, and processor load.
 
-The appropriate next navigation fidelity step would be a 15-state 3D ESKF driven by asynchronous timestamped sensor packets. The next project-level GNC step is constrained trajectory optimization or MPC, because the remaining failures are increasingly tied to finite control authority rather than estimator divergence.
+The appropriate next navigation fidelity step would be a 15-state 3D ESKF
+driven by asynchronous timestamped sensor packets. The subsequent project
+phase addresses the project-level GNC limitation with constrained predictive
+guidance, because the remaining failures are increasingly tied to finite
+control authority rather than estimator divergence. See
+[Constrained Predictive Guidance](constrained_predictive_guidance.md) for that
+matched full-stack comparison.

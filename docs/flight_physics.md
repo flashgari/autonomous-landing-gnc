@@ -110,7 +110,67 @@ Upper-division interpretation:
 
 - The square-root vertical profile is a guidance corridor, not a trajectory optimizer. It gives a physically meaningful descent-rate bound tied to braking acceleration.
 - The lateral law is intentionally conservative because high lateral acceleration demands high tilt, reducing vertical thrust projection.
-- A later project phase should replace or compare this baseline with a more rigorous constrained guidance method.
+- The constrained predictive phase retains this controller below `160 m` and replaces its high-altitude role with an explicit finite-horizon acceleration allocation.
+
+## Constrained Predictive Guidance
+
+The high-altitude controller selects a sequence of inertial accelerations over
+a 12-node finite horizon. Under the double-integrator prediction model,
+
+```text
+r_(k+1) = r_k + dt v_k + 0.5 dt^2 u_k
+v_(k+1) = v_k + dt u_k
+```
+
+future state histories are affine functions of the stacked acceleration
+sequence. Quadratic state-tracking, terminal-error, acceleration, and slew
+penalties therefore produce a convex QP.
+
+The path constraints encode the coupled thrust geometry:
+
+```text
+|a_x| <= tan(theta_max) (g + a_z)
+sqrt(a_x^2 + (g + a_z)^2) <= T_max / m
+|x - x_target| <= 2.0 + 0.10 z
+z >= 0
+```
+
+The thrust disk is implemented as a conservative inscribed 12-sided polygon,
+so all optimization constraints remain linear. The glide slope contracts the
+permitted downrange error with altitude. It forces a large divert to build
+and then remove horizontal velocity before terminal braking consumes the
+remaining time-to-go.
+
+This matters physically because footprint error is an impulse-allocation
+problem:
+
+```text
+Delta vx = integral (T/m) sin(theta) dt + integral (D_x/m) dt
+```
+
+The first lateral impulse changes position by creating horizontal velocity;
+an opposite impulse is then required to reduce that velocity before ground
+contact. A controller that only drives instantaneous position error can arrive
+over the pad with excessive `vx`. The predictive objective penalizes both
+future position and velocity, so it schedules the acceleration sign reversal
+while altitude remains available.
+
+The verified `48 m` case activates the glide-slope constraint but retains
+positive tilt and thrust margin. That active set shows that the vehicle is
+limited by terrain-relative geometry and time-to-go, not by peak engine or
+attitude authority. Across matched 200-case dispersions, this timing change
+reduces pad misses from `14` to `5` while lowering maximum body tilt and
+gimbal demand.
+
+The optimizer is not applied blindly. Primal and dual ADMM residuals are
+reported separately from independently recomputed inequality violation.
+Rejected iterates invoke corridor fallback. The convex QP also relaxes the
+nonconvex minimum-throttle set; a hybrid supervisor maps sub-minimum commands
+to coast or minimum throttle, and corridor guidance takes over below `160 m`.
+These boundaries are part of the engineering result, not implementation
+details to conceal. See
+[Constrained Predictive Guidance](constrained_predictive_guidance.md) for the
+complete formulation and campaign analysis.
 
 ## Nominal Result Interpretation
 
@@ -140,7 +200,7 @@ The completed planar project still does not include:
 - redundant sensor voting or terrain-relative navigation
 - atmospheric density variation with altitude
 - plume-ground interaction
-- convex guidance or trajectory optimization
+- 6-DOF successive convexification with mass and attitude states
 
 These are not hidden. They bound what can be inferred from the current results and define the next fidelity upgrades.
 

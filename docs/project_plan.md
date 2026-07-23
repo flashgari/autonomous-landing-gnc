@@ -47,7 +47,7 @@ Before navigation modeling, the project added a guidance-improvement comparison:
 - [x] deterministic thrust-loss and sensor-bias faults
 - [x] hazard-relative target selection and divert scenario
 - [x] propellant/divert sweep and terminal-condition map
-- [ ] compare corridor guidance with constrained MPC or convex guidance
+- [x] compare corridor guidance with constrained predictive guidance
 - [x] replace fixed-gain estimator with an IMU-driven error-state EKF
 
 ## Week 6 Inertial Navigation
@@ -69,3 +69,16 @@ Before navigation modeling, the project added a guidance-improvement comparison:
 - [x] advanced animation and verification visuals
 - [x] requirement-to-evidence verification matrix
 - [x] final engineering narrative
+
+## Week 8 Constrained Predictive Guidance
+
+- [x] 12-node condensed direct-transcription prediction model
+- [x] quadratic tracking, terminal-state, control, and slew objective
+- [x] explicit tilt-cone, thrust, altitude, glide-slope, and slew constraints
+- [x] in-repository ADMM solver with warm start and residual telemetry
+- [x] feasible-plan acceptance separated from strict optimality convergence
+- [x] deterministic corridor fallback for rejected QP iterates
+- [x] hybrid minimum-throttle supervisor and 160 m terminal handoff
+- [x] matched-seed 200-case corridor/predictive comparison
+- [x] fine-step reachability sweep and retained failure boundary
+- [x] upper-division formulation, active-constraint, and result interpretation

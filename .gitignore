@@ -32,3 +32,17 @@ outputs/*.json
 !outputs/ekf_*.json
 !outputs/monte_carlo_navigation_*.csv
 !outputs/monte_carlo_navigation_*.json
+!outputs/corridor_ekf_nominal.csv
+!outputs/corridor_ekf_nominal_config.json
+!outputs/predictive_ekf_nominal.csv
+!outputs/predictive_ekf_nominal_config.json
+!outputs/predictive_thrust_loss.csv
+!outputs/predictive_thrust_loss_config.json
+!outputs/predictive_48m_divert.csv
+!outputs/predictive_48m_divert_config.json
+!outputs/predictive_reachability_sweep.csv
+!outputs/predictive_guidance_campaign.json
+!outputs/monte_carlo_guidance_corridor_ekf.csv
+!outputs/monte_carlo_guidance_corridor_ekf_summary.json
+!outputs/monte_carlo_guidance_predictive_ekf.csv
+!outputs/monte_carlo_guidance_predictive_ekf_summary.json

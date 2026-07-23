@@ -173,6 +173,42 @@ def summarize(
                 ),
             }
         )
+    if rows and "optimizer_acceptance_rate" in rows[0]:
+        summary.update(
+            {
+                "mean_optimizer_acceptance_rate": mean(
+                    rows,
+                    "optimizer_acceptance_rate",
+                ),
+                "mean_optimizer_convergence_rate": mean(
+                    rows,
+                    "optimizer_convergence_rate",
+                ),
+                "total_optimizer_fallbacks": sum(
+                    int(row["optimizer_fallback_count"]) for row in rows
+                ),
+                "mean_optimizer_iterations": mean(
+                    rows,
+                    "optimizer_mean_iterations",
+                ),
+                "maximum_optimizer_violation": max(
+                    float(row["optimizer_maximum_observed_violation"])
+                    for row in rows
+                ),
+                "mean_optimizer_tilt_active_fraction": mean(
+                    rows,
+                    "optimizer_tilt_active_fraction",
+                ),
+                "mean_optimizer_thrust_active_fraction": mean(
+                    rows,
+                    "optimizer_thrust_active_fraction",
+                ),
+                "mean_optimizer_glideslope_active_fraction": mean(
+                    rows,
+                    "optimizer_glideslope_active_fraction",
+                ),
+            }
+        )
     return summary
 
 

@@ -1,6 +1,9 @@
 # Autonomous Powered-Descent GNC Simulator
 
-A planar reusable-booster landing simulation that closes the loop through IMU-driven error-state estimation, guidance, attitude control, throttle/TVC actuator dynamics, fault injection, hazard-relative targeting, and Monte Carlo verification.
+A planar reusable-booster landing simulation that closes the loop through
+IMU-driven error-state estimation, constrained predictive guidance, attitude
+control, throttle/TVC actuator dynamics, fault injection, hazard-relative
+targeting, and Monte Carlo verification.
 
 ## Start With the Flight
 
@@ -41,8 +44,9 @@ flowchart LR
     ENV["Vehicle and environment truth"] --> SENS["Biased, noisy sensors"]
     SENS --> EST["IMU error-state EKF and aiding updates"]
     EST --> HAZ["Safe-target selection"]
-    HAZ --> GUID["Altitude-scheduled corridor guidance"]
-    GUID --> CTRL["Attitude and TVC control"]
+    HAZ --> GUID["Constrained predictive guidance"]
+    GUID --> TERM["160 m terminal handoff"]
+    TERM --> CTRL["Attitude and TVC control"]
     CTRL --> ACT["Delay, lag, slew, deadband, saturation"]
     ACT --> DYN["Planar rigid-body dynamics"]
     DYN --> ENV
@@ -58,6 +62,8 @@ Headline results:
 | corridor + actuators, truth feedback | `95.0%` success | finite actuator dynamics remain compatible with the guidance schedule |
 | corridor + actuators, alpha-beta feedback | `66.5%` success | fixed-gain navigation error is the dominant robustness limitation |
 | corridor + actuators, ESKF feedback | `93.0%` success | IMU propagation, bias estimation, and covariance-weighted aiding recover `26.5` points |
+| predictive guidance + ESKF + actuators | `97.5%` success | constrained high-altitude impulse shaping reduces pad misses from `14` to `5` |
+| deterministic `48 m` initial offset | pass | the glide-slope constraint becomes active while thrust and tilt retain margin |
 | GPS unavailable from 8-28 s | pass | inertial covariance grows during the outage and contracts after reacquisition |
 | +12 m radar-altimeter bias | pass | scalar NIS gating rejects `344` contaminated radar updates |
 | +12 m altitude-bias fault | pass | innovation gating preserves touchdown with additional gravity loss |
@@ -92,6 +98,21 @@ $$
 
 The central coupling is thrust projection. Horizontal correction requires body tilt, but tilt reduces vertical thrust through $T\cos\theta$. Late divert commands can therefore improve pad alignment while consuming the acceleration margin needed to remove vertical kinetic energy. Corridor guidance addresses this by correcting crossrange earlier and reducing allowable tilt when terminal braking has priority.
 
+The predictive upgrade makes that allocation explicit. A 12-node
+direct-transcription problem selects future inertial accelerations subject to
+a tilt cone, a conservative polygonal maximum-thrust bound, acceleration
+slew, nonnegative altitude, and the terrain-relative corridor
+
+$$
+|x_k-x_{target}|\le 2.0+0.10z_k.
+$$
+
+The QP is resolved every `0.60 s` from the ESKF state. It governs the
+high-altitude divert, then hands off below `160 m` because minimum-throttle
+switching, actuator lag, and terminal braking dominate the low-altitude
+dynamics. This is a planar convex relaxation with explicit fallback logic,
+not a claim of flight-ready 6-DOF optimal guidance.
+
 Navigation changes the problem from state feedback to output feedback:
 
 $$
@@ -100,9 +121,55 @@ $$
 
 The alpha-beta baseline predicts between common `0.10 s` measurement updates using fixed gains. The ESKF instead integrates body-frame specific force and gyro rate, estimates two accelerometer biases and one gyro bias, propagates an eight-state covariance, and applies asynchronous GPS, radar-altimeter, and attitude updates. Its error becomes a guidance error, which becomes an attitude command, which is filtered by actuator delay and slew limits before changing the true trajectory.
 
-The complete derivation and result interpretation are in [Flight Physics](docs/flight_physics.md), [Error-State EKF and Inertial Navigation](docs/error_state_ekf.md), [Alpha-Beta Navigation Baseline](docs/navigation_estimation.md), and [Actuator Dynamics and Fault Response](docs/actuator_fault_response.md).
+The complete derivation and result interpretation are in [Constrained Predictive Guidance](docs/constrained_predictive_guidance.md), [Flight Physics](docs/flight_physics.md), [Error-State EKF and Inertial Navigation](docs/error_state_ekf.md), [Alpha-Beta Navigation Baseline](docs/navigation_estimation.md), and [Actuator Dynamics and Fault Response](docs/actuator_fault_response.md).
 
 ## Visual Evidence
+
+### Constrained Predictive Guidance
+
+![Constrained predictive-guidance comparison](figures/predictive_guidance_comparison.svg)
+
+This comparison holds the ESKF, nonlinear plant, actuator stack, random
+dispersions, and seed fixed. Replacing high-altitude corridor guidance with
+receding-horizon acceleration planning raises success from `93.0%` to
+`97.5%` and lowers p95 absolute pad error from `3.18 m` to `2.63 m`.
+P95 touchdown speed increases slightly from `0.92 m/s` to `0.96 m/s`, still
+well inside the `2.5 m/s` criterion. Reporting that trade is important: the
+optimizer primarily improves lateral footprint robustness rather than every
+scalar metric simultaneously.
+
+The trajectory geometry explains the improvement. Predictive guidance removes
+crossrange velocity while altitude and time-to-go remain large, so less
+late-stage tilt is needed. Across the matched campaign, maximum body tilt
+falls from `5.79 deg` to `4.41 deg` and maximum applied gimbal falls from
+`4.71 deg` to `2.07 deg`. The gain therefore comes from when lateral impulse
+is generated, not from increasing peak control authority.
+
+The deterministic reachability sweep deliberately retains failures. Corridor
+guidance passes the sampled grid through a `30 m` initial offset; predictive
+guidance passes through `40 m`. A separately integrated `48 m` case passes,
+while `50 m` fails the `3 m` footprint criterion. This nonmonotonic local
+result is reported as a sampled closed-loop boundary, not interpolated into an
+unsupported maximum-divert claim.
+
+### Active Constraints and Numerical Evidence
+
+![Predictive-guidance constraint activity](figures/predictive_constraint_activity.svg)
+
+In the verified `48 m` divert, the glide-slope margin approaches zero during
+the high-altitude plan while tilt and maximum-thrust margins remain positive.
+The active constraint is therefore the shrinking terrain-relative corridor,
+which demands early removal of downrange error and later counter-acceleration
+to suppress touchdown $v_x$. The trajectory is not produced by saturating
+thrust or body angle.
+
+The lower panel reports the ADMM residual at every replan. Strict optimality
+convergence and physical feasibility are tracked separately: a finite-iteration
+plan can satisfy every inequality before the dual residual reaches the tighter
+stopping tolerance. Across 200 dispersed cases, mean plan acceptance is
+`99.90%`, strict convergence is `74.22%`, and four replans use the verified
+corridor fallback. The maximum recorded violation of `0.459` belongs to a
+rejected iterate; it is preserved in the campaign output rather than hidden.
 
 ### Error-State Navigation Consistency
 
@@ -183,6 +250,8 @@ python3 scripts/run_ekf_campaign.py --cases 200 --seed 4242
 python3 scripts/plot_ekf_campaign.py
 python3 scripts/run_advanced_scenarios.py
 python3 scripts/plot_advanced_scenarios.py
+python3 scripts/run_predictive_guidance_campaign.py --cases 200 --seed 4242
+python3 scripts/plot_predictive_guidance_campaign.py
 python3 scripts/plot_propellant_performance.py
 python3 scripts/make_advanced_landing_animation.py
 python3 scripts/make_landing_gif.py
@@ -194,7 +263,7 @@ python3 -m unittest discover tests
 ## Repository Map
 
 ```text
-landing_gnc/   dynamics, guidance, alpha-beta/ESKF navigation, actuators, hazards
+landing_gnc/   dynamics, constrained/corridor guidance, navigation, actuators, hazards
 scripts/       reproducible campaigns, SVG plots, and HTML animation generators
 docs/          equations, assumptions, physical interpretation, and limitations
 outputs/       generated trajectory, Monte Carlo, fault, and feasibility data
@@ -207,4 +276,12 @@ tests/         deterministic unit and system-level verification
 
 The simulator is intentionally planar and does not claim flight fidelity. It omits 6-DOF translation/rotation, a 15-state 3D inertial error model, slosh, flexible modes, multi-engine allocation, terrain-relative image processing, landing-leg contact, plume-ground interaction, and onboard timing/quantization. These omissions are recorded because engineering credibility depends on knowing what the model cannot establish.
 
-The strongest next technical extension is constrained trajectory optimization or MPC with explicit thrust, tilt, glide-slope, and terminal-state constraints. The remaining ESKF failures are primarily pad misses near the finite-time lateral authority boundary, so the next question is how guidance allocates reachable impulse, not whether another estimator label can remove a control constraint.
+The constrained predictor is deliberately an acceleration-space convex
+relaxation. It does not propagate attitude, mass, or aerodynamics inside the
+QP, and its exact minimum-throttle set is handled by a hybrid supervisor
+rather than mixed-integer optimization. The strongest next technical
+extension is 6-DOF successive convexification or nonlinear MPC with mass and
+attitude states, trust regions, virtual controls, engine allocation, and
+measured solver timing. Those additions would address the remaining pad
+misses without pretending that another estimator label can remove a physical
+reachability limit.

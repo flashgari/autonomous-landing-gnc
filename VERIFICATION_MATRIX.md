@@ -7,6 +7,11 @@ Every requirement is connected to executable evidence. “Pass” means the impl
 | DYN-01 | Integrate planar translation, rotation, and mass depletion | nominal simulation and unit test | `landing_gnc/dynamics.py`, `tests/test_simulation.py` | pass |
 | GNC-01 | Land the nominal baseline with positive propellant | trajectory simulation | `outputs/nominal_landing_metrics.json` | pass |
 | GNC-02 | Improve dispersion performance with corridor guidance | same-seed 200-case Monte Carlo comparison | `figures/guidance_mode_comparison.svg` | pass |
+| GNC-03 | Predict future position and velocity from a transcribed acceleration sequence | analytical constant-acceleration comparison | `tests/test_constrained_guidance.py` | pass |
+| GNC-04 | Enforce tilt, maximum thrust, glide slope, altitude, and acceleration slew in the high-altitude plan | QP feasibility test and margin history | `figures/predictive_constraint_activity.svg` | pass to numerical acceptance tolerance |
+| GNC-05 | Improve full-stack landing robustness without changing navigation or actuator models | matched-seed 200-case corridor/predictive comparison | `figures/predictive_guidance_comparison.svg` | success improves from 93.0% to 97.5% |
+| GNC-06 | Preserve a deterministic fallback when a QP iterate is unacceptable | injected solver acceptance logic and campaign diagnostics | `landing_gnc/constrained_guidance.py`, `outputs/predictive_guidance_campaign.json` | four fallback replans, no hidden application |
+| GNC-07 | Demonstrate a large divert near the sampled footprint boundary | deterministic 48 m initial-offset simulation at 0.05 s | `outputs/predictive_48m_divert.csv` | pass at +2.71 m target error |
 | NAV-01 | Generate biased, noisy sampled navigation measurements | deterministic seeded simulation | `landing_gnc/navigation.py` | pass |
 | NAV-02 | Estimate position, velocity, attitude, and rate between samples | noise-free tracking and nominal RMS checks | `tests/test_navigation.py`, `figures/navigation_estimation_comparison.svg` | pass |
 | NAV-03 | Reject implausible altitude innovations | injected +12 m step fault | `outputs/advanced_scenarios.json` | pass |
@@ -25,6 +30,7 @@ Every requirement is connected to executable evidence. “Pass” means the impl
 | PERF-01 | Quantify propellant use across lateral divert demand | controlled target sweep | `figures/propellant_performance.svg` | pass |
 | PERF-02 | Sample touchdown feasibility over altitude/offset conditions | 30-case deterministic grid | `figures/landing_feasibility_envelope.svg` | pass |
 | SW-01 | Reproduce seeded Monte Carlo outputs | repeated campaigns in unit tests | `tests/test_monte_carlo.py` | pass |
+| SW-02 | Report optimizer convergence separately from constraint-feasible acceptance | ADMM residual and violation telemetry | `outputs/monte_carlo_guidance_predictive_ekf_summary.json` | 74.22% strict convergence, 99.90% acceptance |
 
 ## Acceptance Criteria
 

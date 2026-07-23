@@ -58,7 +58,11 @@ That nonmonotonicity should not be smoothed away. It indicates that the closed-l
 
 ## Relevance to Flight Design
 
-A flight implementation would replace candidate selection with terrain-relative navigation, hazard-map uncertainty, reachable-set screening, and trajectory optimization. The current result establishes the correct analysis chain:
+A flight implementation would replace candidate selection with
+terrain-relative navigation, hazard-map uncertainty, and formal reachable-set
+screening. The later constrained-predictive phase adds explicit trajectory
+constraints but still uses a deterministic one-dimensional hazard map. This
+result establishes the correct analysis chain:
 
 1. represent unsafe geometry explicitly;
 2. enforce clearance during target selection;
