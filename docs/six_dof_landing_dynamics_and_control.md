@@ -321,8 +321,15 @@ probabilistic 6-DOF certification campaign. The model still omits:
 - engine ignition transients, combustion instability, and correlated failures;
 - onboard computation timing and quantization.
 
-The next control-development step is to place the 6-DOF plant behind a
-successive-convexification or nonlinear-MPC guidance layer, then run matched
-Monte Carlo dispersions with wind estimation, engine-out contingency logic,
-and solver timing. The present milestone supplies the nonlinear truth plant,
-actuator geometry, and explicit failure mechanisms needed for that work.
+The next control-development step identified here has now been implemented as
+a reduced-order nonlinear MPC layer with mass, thrust-axis attitude response,
+quadratic wind drag, trust-region updates, nonlinear rollout acceptance,
+matched 3D dispersions, and measured solve timing. Its formulation and results
+are documented in
+[Attitude-Aware Nonlinear MPC for 6-DOF Powered Descent](six_dof_nmpc_guidance.md).
+
+The remaining integration gap is navigation and contingency allocation. The
+3D NMPC currently uses truth state and known wind rather than a 15-state
+inertial estimator, and the three-engine attainable wrench set does not
+support the nominal six-axis request after failure. Those limitations define
+the next estimator-in-the-loop and allocation-aware recovery milestones.

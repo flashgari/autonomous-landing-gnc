@@ -105,6 +105,37 @@ class SixDofGuidance:
 
 
 @dataclass(frozen=True)
+class SixDofNmpcConfig:
+    """Reduced-order nonlinear MPC configuration for the 6-DOF truth plant."""
+
+    horizon_steps: int = 6
+    replan_period_s: float = 0.80
+    minimum_horizon_s: float = 5.0
+    maximum_horizon_s: float = 28.0
+    terminal_handoff_altitude_m: float = 25.0
+    terminal_descent_mps: float = 1.0
+    maximum_iterations: int = 3
+    finite_difference_step_mps2: float = 0.035
+    initial_trust_region_mps2: float = 1.8
+    minimum_trust_region_mps2: float = 0.08
+    maximum_trust_region_mps2: float = 4.0
+    attitude_natural_frequency_radps: float = 1.55
+    attitude_damping_ratio: float = 0.90
+    position_weight: float = 0.025
+    velocity_weight: float = 0.20
+    terminal_position_weight: float = 1.8
+    terminal_velocity_weight: float = 2.4
+    attitude_lag_weight: float = 0.35
+    body_rate_weight: float = 0.08
+    thrust_weight: float = 0.0025
+    thrust_slew_weight: float = 0.035
+    corridor_weight: float = 1.2
+    propellant_reserve_weight: float = 5.0
+    regularization: float = 0.08
+    acceptance_relative_improvement: float = 1.0e-5
+
+
+@dataclass(frozen=True)
 class SixDofAttitudeControl:
     proportional_gain_nm: tuple[float, float, float] = (5.0e6, 5.0e6, 1.8e6)
     derivative_gain_nms: tuple[float, float, float] = (4.0e6, 4.0e6, 1.4e6)

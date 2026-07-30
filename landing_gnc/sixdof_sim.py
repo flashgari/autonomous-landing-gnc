@@ -22,11 +22,13 @@ from .sixdof_math import (
     quaternion_to_matrix,
     tilt_from_vertical_rad,
 )
+from .sixdof_nmpc import SixDofNmpcController
 from .sixdof_models import (
     SixDofActuatorModel,
     SixDofAttitudeControl,
     SixDofEnvironment,
     SixDofGuidance,
+    SixDofNmpcConfig,
     SixDofScenario,
     SixDofState,
     SixDofVehicle,
@@ -63,6 +65,8 @@ def run_sixdof_simulation(
     scenario: SixDofScenario | None = None,
     initial_state: SixDofState | None = None,
     target_inertial_m: np.ndarray | None = None,
+    guidance_mode: str = "baseline",
+    nmpc_config: SixDofNmpcConfig | None = None,
 ) -> tuple[list[dict], dict, dict]:
     vehicle = vehicle or SixDofVehicle()
     environment = environment or SixDofEnvironment()
@@ -72,6 +76,11 @@ def run_sixdof_simulation(
     )
     actuator_model = actuator_model or SixDofActuatorModel()
     scenario = scenario or SixDofScenario()
+    if guidance_mode not in {"baseline", "nmpc"}:
+        raise ValueError(
+            "guidance_mode must be either 'baseline' or 'nmpc'"
+        )
+    nmpc_config = nmpc_config or SixDofNmpcConfig()
     state = (
         initial_state.copy()
         if initial_state is not None
@@ -87,10 +96,37 @@ def run_sixdof_simulation(
         vehicle,
         dt_s,
     )
+    nmpc_controller = (
+        SixDofNmpcController(nmpc_config)
+        if guidance_mode == "nmpc"
+        else None
+    )
     rows: list[dict] = []
 
     step_count = int(duration_s / dt_s) + 1
     for _ in range(step_count):
+        failed_engine_index = (
+            scenario.failed_engine_index
+            if state.time_s >= scenario.engine_failure_time_s
+            else None
+        )
+        guidance_diagnostics: dict[str, float] = {}
+        desired_acceleration_override = None
+        if nmpc_controller is not None:
+            nmpc_result = nmpc_controller.command(
+                state,
+                vehicle,
+                environment,
+                guidance,
+                target,
+                active_engine_count=(
+                    3 if failed_engine_index is not None else 4
+                ),
+            )
+            desired_acceleration_override = (
+                nmpc_result.desired_acceleration_inertial_mps2
+            )
+            guidance_diagnostics = nmpc_result.diagnostics
         requested_wrench = wrench_command(
             state,
             vehicle,
@@ -98,16 +134,13 @@ def run_sixdof_simulation(
             guidance,
             attitude_control,
             target,
+            desired_acceleration_override,
         )
         allocated = allocate_engine_commands(
             state,
             requested_wrench,
             vehicle,
-            failed_engine_index=(
-                scenario.failed_engine_index
-                if state.time_s >= scenario.engine_failure_time_s
-                else None
-            ),
+            failed_engine_index=failed_engine_index,
         )
         achieved = actuators.step(
             allocated,
@@ -130,6 +163,7 @@ def run_sixdof_simulation(
                 derivative,
                 vehicle,
                 target,
+                guidance_diagnostics,
             )
         )
         if (
@@ -152,10 +186,14 @@ def run_sixdof_simulation(
         vehicle,
         target,
     )
+    if nmpc_controller is not None:
+        metrics.update(nmpc_controller.summary())
     configuration = {
         "vehicle": _json_ready(asdict(vehicle)),
         "environment": _json_ready(asdict(environment)),
         "guidance": _json_ready(asdict(guidance)),
+        "guidance_mode": guidance_mode,
+        "nmpc_config": _json_ready(asdict(nmpc_config)),
         "attitude_control": _json_ready(
             asdict(attitude_control)
         ),
@@ -181,6 +219,7 @@ def row_from_sixdof(
     derivative,
     vehicle,
     target,
+    guidance_diagnostics=None,
 ) -> dict:
     rotation = quaternion_to_matrix(
         state.quaternion_body_to_inertial
@@ -315,6 +354,8 @@ def row_from_sixdof(
             engine.gimbal_y_rad
         )
         row[f"engine_{index}_enabled"] = int(engine.enabled)
+    if guidance_diagnostics:
+        row.update(guidance_diagnostics)
     return _json_ready(row)
 
 

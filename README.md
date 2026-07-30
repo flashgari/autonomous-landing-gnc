@@ -5,6 +5,9 @@ a mature planar stack for inertial navigation, constrained guidance, faults,
 hazard diversion, and Monte Carlo verification; and a 3D 6-DOF rigid-body
 plant with quaternion attitude, variable mass properties, crosswind
 aerodynamics, four-engine allocation, and finite-bandwidth actuators.
+The latest milestone closes an attitude-aware nonlinear MPC guidance model
+around that 6-DOF truth plant and verifies it with matched 3D dispersions and
+measured replan timing.
 
 ## Start With the Flight
 
@@ -72,6 +75,9 @@ flowchart TB
     QCTRL --> ALLOC["Four-engine wrench allocation"]
     ALLOC --> SIX
     SIX --> BOUND["Crosswind and engine-out boundary tests"]
+    SIX --> NMPC["Trust-region nonlinear MPC"]
+    NMPC --> QCTRL
+    NMPC --> MC3["Matched 3D dispersion and timing audit"]
 ```
 
 Headline results:
@@ -82,6 +88,9 @@ Headline results:
 | 3D `12/-6 m/s` crosswind | pass | coupled aerodynamic disturbance is rejected inside the `3 m` footprint |
 | 3D `18/-10 m/s` crosswind | fail | scheduled PD guidance retains steady wind-induced position bias |
 | 3D engine 1 out at `12 s` | fail | asymmetric attainable wrench set produces `10.16 m` footprint error |
+| 3D scheduled-feedback dispersions | `70.8%` success | seven of 24 matched cases miss the `3 m` footprint |
+| 3D attitude-aware NMPC dispersions | `79.2%` success | p95 footprint error falls from `3.95 m` to `3.48 m` |
+| 3D NMPC computation | `275 ms` maximum | observed local-runtime solve time remains below the `800 ms` update period |
 | baseline guidance Monte Carlo | `46.5%` success | nominal tuning does not provide robust terminal margins |
 | corridor guidance Monte Carlo | `92.0%` success | earlier lateral correction protects late vertical braking authority |
 | corridor + actuators, truth feedback | `95.0%` success | finite actuator dynamics remain compatible with the guidance schedule |
@@ -128,6 +137,29 @@ moment.
 The full derivation, allocation geometry, actuator equations, case-by-case
 result interpretation, and limitations are in
 [3D 6-DOF Landing Dynamics, Control, and Verification](docs/six_dof_landing_dynamics_and_control.md).
+
+The 6-DOF NMPC predictor uses the reduced guidance state
+
+$$
+\mathbf{x}_{p}=
+[\mathbf r_I,\;\mathbf v_I,\;\mathbf b_{3,I},\;
+\boldsymbol\omega_{\perp,I},\;m]^T
+$$
+
+and selects a finite sequence of inertial specific-thrust vectors. Unlike the
+earlier planar convex relaxation, it predicts quadratic wind drag,
+mass-dependent thrust acceleration, propellant depletion, and finite
+closed-loop thrust-axis response. Finite-difference Gauss-Newton steps are
+bounded by a trust region, projected into the thrust/tilt set, and accepted
+only after a fresh nonlinear rollout reduces the merit function.
+
+The optimizer runs every `0.8 s` and hands off below `25 m`. Direct shooting
+propagates the nonlinear prediction model for every candidate, so it does not
+introduce a linearized dynamics defect requiring an SCvx virtual-control
+state. This is a reduced-order local NMPC implementation, not a claim of
+globally optimal or flight-qualified guidance. The complete formulation and
+upper-division result interpretation are in
+[Attitude-Aware Nonlinear MPC for 6-DOF Powered Descent](docs/six_dof_nmpc_guidance.md).
 
 The mature navigation and predictive-guidance campaigns use the planar state:
 
@@ -178,6 +210,33 @@ The alpha-beta baseline predicts between common `0.10 s` measurement updates usi
 The complete planar derivation and result interpretation are in [Constrained Predictive Guidance](docs/constrained_predictive_guidance.md), [Flight Physics](docs/flight_physics.md), [Error-State EKF and Inertial Navigation](docs/error_state_ekf.md), [Alpha-Beta Navigation Baseline](docs/navigation_estimation.md), and [Actuator Dynamics and Fault Response](docs/actuator_fault_response.md).
 
 ## Visual Evidence
+
+### 6-DOF Nonlinear MPC Guidance
+
+![6-DOF nonlinear MPC verification](figures/sixdof_nmpc_verification.svg)
+
+Panel A deliberately retains the `18/-10 m/s` high-crosswind failure. NMPC
+reduces the deterministic miss from `6.16 m` to `4.88 m`, but both remain
+outside the `3 m` footprint. Known-wind drag prediction and earlier
+counter-impulse scheduling improve disturbance compensation without creating
+additional thrust-vector angle, time-to-go, or control-allocation authority.
+
+Panel B explains the propellant result. In the calm case, NMPC shortens the
+powered descent from `41.65 s` to `32.40 s` while retaining approximately
+`1.20 m/s` vertical touchdown speed. Less time producing force against gravity
+reduces gravity loss; the roughly `651 kg` increase in median modeled reserve
+is not obtained by accepting a harder landing.
+
+Panel C holds every sampled initial condition and wind draw fixed. Success
+rises from `17/24` to `19/24`, while p95 horizontal error falls from `3.95 m`
+to `3.48 m`. Every failure in both modes remains a footprint miss, so the
+optimizer improves lateral robustness without merely shifting failure into
+vertical speed, attitude, or fuel depletion.
+
+Panel E audits computation rather than treating solver timing as invisible.
+Mean, p95, and maximum observed solve times are `146`, `228`, and `275 ms`
+against an `800 ms` replan period. These are development-machine measurements,
+not flight-computer worst-case execution-time guarantees.
 
 ### 3D Rigid-Body and Engine-Allocation Verification
 
@@ -322,6 +381,8 @@ python3 -m pip install -r requirements.txt
 export PYTHONPATH="$PWD"
 python3 scripts/run_sixdof_landing.py
 python3 scripts/plot_sixdof_landing.py
+python3 scripts/run_sixdof_nmpc_campaign.py
+python3 scripts/plot_sixdof_nmpc_campaign.py
 python3 scripts/make_sixdof_landing_animation.py
 python3 scripts/make_sixdof_landing_gif.py
 python3 scripts/run_nominal_landing.py
@@ -363,16 +424,17 @@ tests/         deterministic unit and system-level verification
 The repository contains two model tiers, and they are not presented as one
 flight-ready stack. The planar tier contains the ESKF, constrained predictor,
 hazard logic, and large Monte Carlo campaigns. The 3D tier contains the
-nonlinear rigid body, quaternion controller, crosswind aerodynamics, and
-four-engine actuator allocation. The planar ESKF and predictive planner have
-not yet been promoted into the 3D loop.
+nonlinear rigid body, quaternion controller, crosswind aerodynamics,
+four-engine actuator allocation, and a reduced-order attitude-aware NMPC
+guidance model. The planar ESKF has not yet been promoted into the 3D loop, so
+the current 3D NMPC campaigns use truth state and known wind.
 
-The constrained predictor is deliberately an acceleration-space convex
-relaxation. It does not propagate attitude, mass, or aerodynamics inside the
-QP, and its exact minimum-throttle set is handled by a hybrid supervisor
-rather than mixed-integer optimization. The 3D tier omits a 15-state inertial
-error model, terrain-relative image processing, contact dynamics, plume-
-ground interaction, slosh, flexible modes, detailed aerodynamic tables, and
-onboard timing/quantization. The strongest next extension is 6-DOF successive
-convexification or nonlinear MPC with trust regions, virtual controls, wind
-estimation, contingency allocation, and measured solve-time deadlines.
+The planar constrained predictor remains an acceleration-space convex
+relaxation. The 3D NMPC adds mass, drag, and thrust-axis dynamics but still
+uses a reduced attitude model, local finite-difference derivatives, soft
+corridor penalties, and development-machine timing. The 3D tier omits a
+15-state inertial error model, wind estimation, terrain-relative image
+processing, contact dynamics, plume-ground interaction, slosh, flexible
+modes, detailed aerodynamic tables, and onboard timing/quantization. The
+strongest next extension is estimator-in-the-loop 3D guidance followed by an
+allocation-aware engine-out contingency problem.

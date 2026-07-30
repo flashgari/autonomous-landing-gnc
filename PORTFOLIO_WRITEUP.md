@@ -133,11 +133,61 @@ target because the asymmetric three-engine wrench set cannot track the
 requested force and moment. Both cases retain propellant, demonstrating why
 fuel inventory alone is not a recoverability metric.
 
+## 6-DOF Nonlinear MPC Guidance
+
+The latest milestone places a reduced-order nonlinear predictor inside the
+6-DOF loop. Its state contains inertial position and velocity, the inertial
+body-thrust axis, closed-loop tilt rate, and mass. The control sequence is
+specific thrust in inertial coordinates. Each prediction therefore retains
+the principal guidance couplings:
+
+```text
+a_I = |u| b_3,I + g_I + D_I / m
+m_dot = -m |u| / (Isp g0)
+```
+
+The desired thrust-axis direction is not applied instantaneously. A
+second-order attitude-response model predicts finite quaternion-loop
+bandwidth, and the resulting thrust axis determines the acceleration actually
+used in the shooting rollout. Thrust magnitude is limited by current mass and
+active-engine count; lateral specific thrust is projected into the tilt cone.
+
+The objective tracks a cubic terminal-boundary reference while penalizing
+thrust, slew, thrust-axis lag, body rate, terrain-relative corridor violation,
+and loss of propellant reserve. Finite-difference Gauss-Newton steps are
+bounded by an adaptive trust region. Every candidate is reprojected into the
+control set and accepted only if a fresh nonlinear rollout reduces the merit
+function. Direct shooting enforces the reduced dynamics in each candidate, so
+the virtual-control defect used by successive-convexification formulations is
+not required.
+
+On 24 matched 3D state, mass, attitude, and wind dispersions, scheduled
+feedback succeeds in `17/24` cases and NMPC in `19/24`. P95 horizontal error
+falls from `3.95 m` to `3.48 m`. Median modeled propellant remaining rises
+from `3128 kg` to `3779 kg` while p95 vertical touchdown speed remains near
+`1.20 m/s`. The optimizer shortens powered descent and reduces gravity loss;
+the reserve improvement is not obtained by accepting a harder vertical
+landing.
+
+The deterministic `18/-10 m/s` wind case remains a failure. NMPC reduces its
+miss from `6.16 m` to `4.88 m`, demonstrating improved wind compensation but
+not elimination of the finite thrust/time-to-go boundary. Engine loss
+invalidates the nominal plan immediately, yet the present three-engine
+allocator still cannot realize the requested six-axis wrench. This failure is
+retained because plan feasibility does not imply control-allocation
+feasibility.
+
+Observed mean, p95, and maximum solve times are `146`, `228`, and `275 ms`
+against the `800 ms` replan period. These measurements establish timing margin
+on the development runtime, not a certified onboard worst-case execution
+time.
+
 ## Verification Summary
 
-- `24` deterministic unit and system tests cover planar and 6-DOF dynamics,
+- `29` deterministic unit and system tests cover planar and 6-DOF dynamics,
   quaternion conventions, variable inertia, engine allocation, both guidance
-  architectures, QP transcription and feasibility, Monte Carlo
+  architectures, QP transcription and feasibility, nonlinear MPC trust-region
+  projection and rollout acceptance, Monte Carlo
   reproducibility, both estimator architectures, covariance propagation,
   innovation rejection, sensor dropout, actuator rates, hazard geometry, and
   advanced scenarios.
@@ -151,11 +201,13 @@ fuel inventory alone is not a recoverability metric.
 1. Promote the planar ESKF into the 6-DOF loop with a 15-state inertial error
    model, asynchronous 3D aiding, wind estimation, and terrain-relative
    measurements.
-2. Upgrade the convex predictor to 6-DOF successive convexification with mass
-   and attitude states, trust regions, virtual controls, engine-out
-   contingency allocation, and measured solve-time deadlines.
+2. Replace the reduced thrust-axis predictor with a sparse full-attitude
+   successive-convexification or real-time-iteration NMPC formulation using
+   analytic derivatives and explicit state constraints.
 3. Add terrain-relative sensing and probabilistic hazard-map uncertainty.
-4. Add timestamp jitter, delayed measurements, out-of-sequence updates, and processor timing.
-5. Build a hardware-in-the-loop version using the separate two-axis TVC test-stand project.
+4. Solve an allocation-aware engine-out contingency problem over the
+   asymmetric three-engine attainable wrench set.
+5. Add timestamp jitter, delayed measurements, out-of-sequence updates, and processor timing.
+6. Build a hardware-in-the-loop version using the separate two-axis TVC test-stand project.
 
 The project is strongest as an engineering development record: each added layer changes measurable closed-loop behavior, and each limitation points to a testable next model rather than an unsupported claim.

@@ -17,8 +17,14 @@ from landing_gnc.sixdof_models import (
     SixDofAttitudeControl,
     SixDofEnvironment,
     SixDofGuidance,
+    SixDofNmpcConfig,
     SixDofScenario,
     SixDofVehicle,
+)
+from landing_gnc.sixdof_nmpc import (
+    SixDofNmpcController,
+    cubic_trajectory_reference,
+    project_thrust_plan,
 )
 from landing_gnc.sixdof_sim import (
     default_sixdof_initial_state,
@@ -114,6 +120,116 @@ class SixDofControlTests(unittest.TestCase):
             self.assertLessEqual(command.throttle, 1.0)
 
 
+class SixDofNmpcTests(unittest.TestCase):
+    def test_cubic_reference_satisfies_terminal_boundary_conditions(self):
+        vehicle = SixDofVehicle()
+        state = default_sixdof_initial_state(vehicle)
+        target = np.zeros(3)
+        reference = cubic_trajectory_reference(
+            state,
+            target,
+            horizon_s=24.0,
+            steps=8,
+            node_dt_s=3.0,
+            terminal_descent_mps=1.0,
+        )
+
+        np.testing.assert_allclose(
+            reference["positions_m"][-1],
+            target,
+            atol=1.0e-10,
+        )
+        np.testing.assert_allclose(
+            reference["velocities_mps"][-1],
+            np.array([0.0, 0.0, -1.0]),
+            atol=1.0e-10,
+        )
+
+    def test_thrust_projection_enforces_tilt_and_engine_out_authority(self):
+        vehicle = SixDofVehicle()
+        guidance = SixDofGuidance()
+        plan = np.tile(np.array([20.0, -15.0, 4.0]), (8, 1))
+        projected = project_thrust_plan(
+            plan,
+            vehicle.wet_mass_kg,
+            vehicle,
+            guidance,
+            active_engine_count=3,
+        )
+        maximum_specific_thrust = (
+            3.0
+            * vehicle.maximum_engine_thrust_n
+            / vehicle.wet_mass_kg
+        )
+
+        self.assertTrue(
+            np.all(
+                np.linalg.norm(projected, axis=1)
+                <= maximum_specific_thrust + 1.0e-12
+            )
+        )
+        lateral = np.linalg.norm(projected[:, :2], axis=1)
+        self.assertTrue(
+            np.all(
+                lateral
+                <= projected[:, 2]
+                * math.tan(guidance.maximum_tilt_rad)
+                + 1.0e-12
+            )
+        )
+
+    def test_nmpc_accepts_nonlinear_rollout_from_initial_condition(self):
+        vehicle = SixDofVehicle()
+        state = default_sixdof_initial_state(vehicle)
+        controller = SixDofNmpcController(SixDofNmpcConfig())
+        result = controller.command(
+            state,
+            vehicle,
+            SixDofEnvironment(
+                wind_inertial_mps=(12.0, -6.0, 0.0)
+            ),
+            SixDofGuidance(),
+            np.zeros(3),
+        )
+
+        self.assertEqual(
+            result.diagnostics["nmpc_solution_accepted"],
+            1.0,
+        )
+        self.assertEqual(
+            result.diagnostics["nmpc_nonlinear_rollout_valid"],
+            1.0,
+        )
+        self.assertGreater(
+            result.diagnostics["nmpc_objective_reduction"],
+            0.0,
+        )
+
+    def test_engine_out_invalidates_nominal_nmpc_plan(self):
+        vehicle = SixDofVehicle()
+        controller = SixDofNmpcController(SixDofNmpcConfig())
+        result = controller.command(
+            default_sixdof_initial_state(vehicle),
+            vehicle,
+            SixDofEnvironment(),
+            SixDofGuidance(),
+            np.zeros(3),
+            active_engine_count=3,
+        )
+
+        self.assertEqual(
+            result.diagnostics["nmpc_engine_out_contingency"],
+            1.0,
+        )
+        self.assertEqual(result.diagnostics["nmpc_fallback"], 1.0)
+        self.assertEqual(
+            controller.summary()[
+                "nmpc_engine_out_contingency_event_count"
+            ],
+            1,
+        )
+
+
 class SixDofClosedLoopTests(unittest.TestCase):
     def test_nominal_and_crosswind_cases_land(self):
         cases = (
@@ -189,6 +305,32 @@ class SixDofClosedLoopTests(unittest.TestCase):
                 and row["engine_1_throttle"] == 0.0
                 for row in rows
             )
+        )
+
+    def test_nmpc_reduces_high_crosswind_miss_distance(self):
+        environment = SixDofEnvironment(
+            wind_inertial_mps=(18.0, -10.0, 0.0)
+        )
+        _, baseline, _ = run_sixdof_simulation(
+            duration_s=55.0,
+            dt_s=0.05,
+            environment=environment,
+            guidance_mode="baseline",
+        )
+        rows, nmpc, _ = run_sixdof_simulation(
+            duration_s=55.0,
+            dt_s=0.05,
+            environment=environment,
+            guidance_mode="nmpc",
+        )
+
+        self.assertLess(
+            nmpc["horizontal_target_error_m"],
+            baseline["horizontal_target_error_m"],
+        )
+        self.assertGreater(nmpc["nmpc_acceptance_rate"], 0.95)
+        self.assertTrue(
+            any(row.get("nmpc_terminal_handoff", 0.0) for row in rows)
         )
 
 

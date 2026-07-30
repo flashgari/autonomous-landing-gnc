@@ -134,12 +134,17 @@ def wrench_command(
     guidance: SixDofGuidance,
     attitude_control: SixDofAttitudeControl,
     target_inertial_m: np.ndarray,
+    desired_acceleration_override: np.ndarray | None = None,
 ) -> WrenchCommand:
-    desired_acceleration = guidance_acceleration(
-        state,
-        environment,
-        guidance,
-        target_inertial_m,
+    desired_acceleration = (
+        np.asarray(desired_acceleration_override, dtype=float).copy()
+        if desired_acceleration_override is not None
+        else guidance_acceleration(
+            state,
+            environment,
+            guidance,
+            target_inertial_m,
+        )
     )
     gravity = np.array([0.0, 0.0, -environment.gravity_mps2])
     desired_force_inertial = state.mass_kg * (

@@ -49,3 +49,4 @@ outputs/*.json
 !outputs/sixdof_*.csv
 !outputs/sixdof_*_config.json
 !outputs/sixdof_verification_summary.json
+!outputs/sixdof_nmpc_campaign_summary.json

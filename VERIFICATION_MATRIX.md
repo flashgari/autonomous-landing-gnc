@@ -16,6 +16,10 @@ Every requirement is connected to executable evidence. “Pass” means the impl
 | GNC-07 | Demonstrate a large divert near the sampled footprint boundary | deterministic 48 m initial-offset simulation at 0.05 s | `outputs/predictive_48m_divert.csv` | pass at +2.71 m target error |
 | GNC-08 | Land the 3D nominal and moderate-crosswind cases inside the terminal corridor | deterministic calm and 12/-6 m/s wind cases | `figures/sixdof_landing_verification.svg` | pass |
 | GNC-09 | Identify rather than conceal the high-crosswind terminal-bias boundary | deterministic 18/-10 m/s wind case | `outputs/sixdof_verification_summary.json` | fail boundary retained at 6.16 m error |
+| GNC-10 | Propagate 3D position, velocity, thrust-axis attitude, and mass inside receding-horizon guidance | nonlinear prediction and boundary-condition unit tests | `landing_gnc/sixdof_nmpc.py`, `tests/test_sixdof_landing.py` | pass at reduced-order prediction fidelity |
+| GNC-11 | Reject locally unfavorable NMPC updates using a trust region and fresh nonlinear rollout | finite-difference Gauss-Newton test and optimizer telemetry | `outputs/sixdof_nmpc_campaign_summary.json` | mean plan acceptance 99.85% |
+| GNC-12 | Improve 6-DOF landing robustness on identical state, mass, attitude, and wind dispersions | matched-seed 24-case baseline/NMPC comparison | `figures/sixdof_nmpc_verification.svg` | success improves from 70.8% to 79.2% |
+| GNC-13 | Demonstrate local replan timing margin | wall-clock timing around every nonlinear solve | `outputs/sixdof_nmpc_campaign_summary.json` | 275 ms observed maximum versus 800 ms update period |
 | NAV-01 | Generate biased, noisy sampled navigation measurements | deterministic seeded simulation | `landing_gnc/navigation.py` | pass |
 | NAV-02 | Estimate position, velocity, attitude, and rate between samples | noise-free tracking and nominal RMS checks | `tests/test_navigation.py`, `figures/navigation_estimation_comparison.svg` | pass |
 | NAV-03 | Reject implausible altitude innovations | injected +12 m step fault | `outputs/advanced_scenarios.json` | pass |
@@ -27,6 +31,7 @@ Every requirement is connected to executable evidence. “Pass” means the impl
 | ACT-01 | Enforce command delay, lag, deadband, slew, and saturation | unit test and full-stack scenario | `tests/test_actuators.py` | pass |
 | ACT-02 | Allocate a requested 3D force and all three body moments across four gimbaled engines | wrench-reconstruction unit test and residual telemetry | `landing_gnc/sixdof_control.py`, `tests/test_sixdof_landing.py` | pass |
 | ACT-03 | Identify the reduced attainable wrench set after a mid-descent engine failure | engine 1 disabled at 12 s and allocator residual audited | `outputs/sixdof_engine_out.csv`, `figures/sixdof_landing_verification.svg` | boundary identified |
+| ACT-04 | Invalidate the nominal four-engine optimal plan after an engine failure | active-engine supervisor and retained deterministic case | `landing_gnc/sixdof_nmpc.py`, `outputs/sixdof_nmpc_engine_out_comparison.csv` | plan invalidated; safe three-engine landing not achieved |
 | ROB-01 | Quantify robustness under vehicle, environment, and initial-state dispersions | fixed-seed 200-case campaigns | `outputs/navigation_comparison.json` | pass |
 | ROB-02 | Compare alpha-beta and ESKF feedback on identical dispersions | matched-seed 200-case campaign | `figures/ekf_navigation_robustness.svg` | ESKF improves success by 26.5 points |
 | FDIR-01 | Preserve touchdown after a large altitude-channel bias | deterministic fault scenario | `figures/advanced_scenario_comparison.svg` | pass |

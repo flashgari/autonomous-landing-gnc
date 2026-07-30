@@ -100,9 +100,11 @@ Before navigation modeling, the project added a guidance-improvement comparison:
 
 ## Week 9B 6-DOF Optimal Guidance
 
-- [ ] promote the planar constrained predictor into the 6-DOF loop
-- [ ] add mass and attitude states using successive convexification or NMPC
-- [ ] add trust regions, virtual controls, and nonlinear rollout checks
+- [x] promote receding-horizon predictive guidance into the 6-DOF loop
+- [x] propagate mass and closed-loop thrust-axis attitude in an NMPC model
+- [x] add trust-region Gauss-Newton steps and nonlinear rollout acceptance
+- [x] document why direct shooting does not require SCvx virtual controls
 - [ ] couple a 15-state inertial error model and wind estimator to guidance
-- [ ] add engine-out contingency constraints and measured solve-time deadlines
-- [ ] run matched-seed 3D Monte Carlo dispersion campaigns
+- [x] invalidate nominal plans after engine loss and retain the allocation boundary
+- [x] measure solve time against the 0.8 s replan deadline
+- [x] run a matched-seed 24-case 3D dispersion campaign
