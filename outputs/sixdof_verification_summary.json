@@ -1,0 +1,146 @@
+{
+  "acceptance_criteria": {
+    "horizontal_target_error_m": 3.0,
+    "horizontal_touchdown_speed_mps": 1.0,
+    "maximum_tilt_deg": 12.0,
+    "positive_propellant_required": true,
+    "vertical_touchdown_speed_mps": 2.5
+  },
+  "cases": {
+    "crosswind": {
+      "engine_failure_time_s": null,
+      "failed_engine_index": null,
+      "metrics": {
+        "final_time_s": 41.599999999999774,
+        "horizontal_target_error_m": 2.87023990049742,
+        "landing_x_m": 2.5835011487238653,
+        "landing_y_m": -1.2505194524476246,
+        "maximum_actuator_tracking_residual": 0.7905511203891646,
+        "maximum_allocation_residual": 0.15978007044468923,
+        "maximum_angular_rate_deg_s": 2.7614740812811327,
+        "maximum_force_residual_n": 600817.7708014934,
+        "maximum_gimbal_saturated_fraction": 0.0,
+        "maximum_quaternion_norm_error": 2.220446049250313e-16,
+        "maximum_throttle_saturated_fraction": 0.0,
+        "maximum_tilt_deg": 1.679042675542069,
+        "maximum_torque_residual_nm": 84075.88386173527,
+        "p95_actuator_tracking_residual_after_1s": 0.08756971435516211,
+        "p95_allocation_residual": 0.003186174381583447,
+        "propellant_remaining_kg": 3149.00246191923,
+        "propellant_used_kg": 3850.99753808077,
+        "success": true,
+        "touchdown_horizontal_speed_mps": 0.015070708160522061,
+        "touchdown_speed_mps": 1.196186734624884,
+        "touchdown_vertical_speed_mps": 1.1960917932366575
+      },
+      "wind_inertial_mps": [
+        12.0,
+        -6.0,
+        0.0
+      ]
+    },
+    "engine_out": {
+      "engine_failure_time_s": 12.0,
+      "failed_engine_index": 0,
+      "metrics": {
+        "final_time_s": 42.34999999999973,
+        "horizontal_target_error_m": 10.155204365266867,
+        "landing_x_m": 7.839336696287392,
+        "landing_y_m": 6.455460933394077,
+        "maximum_actuator_tracking_residual": 0.8485123431594274,
+        "maximum_allocation_residual": 0.6606351311474055,
+        "maximum_angular_rate_deg_s": 8.654346643936012,
+        "maximum_force_residual_n": 644750.6443904503,
+        "maximum_gimbal_saturated_fraction": 0.0,
+        "maximum_quaternion_norm_error": 2.220446049250313e-16,
+        "maximum_throttle_saturated_fraction": 0.0,
+        "maximum_tilt_deg": 7.92839111281823,
+        "maximum_torque_residual_nm": 1557999.809042272,
+        "p95_actuator_tracking_residual_after_1s": 0.33877098802230615,
+        "p95_allocation_residual": 0.3014792490797235,
+        "propellant_remaining_kg": 3082.9187054352587,
+        "propellant_used_kg": 3917.0812945647413,
+        "success": false,
+        "touchdown_horizontal_speed_mps": 2.67369337013711,
+        "touchdown_speed_mps": 2.923637201664482,
+        "touchdown_vertical_speed_mps": 1.1828010185324427
+      },
+      "wind_inertial_mps": [
+        8.0,
+        -3.0,
+        0.0
+      ]
+    },
+    "high_crosswind": {
+      "engine_failure_time_s": null,
+      "failed_engine_index": null,
+      "metrics": {
+        "final_time_s": 41.599999999999774,
+        "horizontal_target_error_m": 6.163347592014941,
+        "landing_x_m": 5.396788078888869,
+        "landing_y_m": -2.976832540059882,
+        "maximum_actuator_tracking_residual": 0.7908654659531246,
+        "maximum_allocation_residual": 0.15991680990484455,
+        "maximum_angular_rate_deg_s": 2.795811370851096,
+        "maximum_force_residual_n": 601053.2964748546,
+        "maximum_gimbal_saturated_fraction": 0.0,
+        "maximum_quaternion_norm_error": 2.220446049250313e-16,
+        "maximum_throttle_saturated_fraction": 0.0,
+        "maximum_tilt_deg": 1.7742356961389694,
+        "maximum_torque_residual_nm": 99315.48909228801,
+        "p95_actuator_tracking_residual_after_1s": 0.08270871053026199,
+        "p95_allocation_residual": 0.004452907265814333,
+        "propellant_remaining_kg": 3150.4954870849688,
+        "propellant_used_kg": 3849.5045129150312,
+        "success": false,
+        "touchdown_horizontal_speed_mps": 0.010963904785456524,
+        "touchdown_speed_mps": 1.1951752623793759,
+        "touchdown_vertical_speed_mps": 1.1951249727938351
+      },
+      "wind_inertial_mps": [
+        18.0,
+        -10.0,
+        0.0
+      ]
+    },
+    "nominal": {
+      "engine_failure_time_s": null,
+      "failed_engine_index": null,
+      "metrics": {
+        "final_time_s": 41.64999999999977,
+        "horizontal_target_error_m": 0.23820263367266073,
+        "landing_x_m": -0.19791330889865097,
+        "landing_y_m": 0.1325549578453366,
+        "maximum_actuator_tracking_residual": 0.7902881177764877,
+        "maximum_allocation_residual": 0.15971409915927817,
+        "maximum_angular_rate_deg_s": 2.7239116971135684,
+        "maximum_force_residual_n": 600618.8433548524,
+        "maximum_gimbal_saturated_fraction": 0.0,
+        "maximum_quaternion_norm_error": 2.220446049250313e-16,
+        "maximum_throttle_saturated_fraction": 0.0,
+        "maximum_tilt_deg": 2.0602126875351567,
+        "maximum_torque_residual_nm": 84075.88386173527,
+        "p95_actuator_tracking_residual_after_1s": 0.09203234844806688,
+        "p95_allocation_residual": 0.0021319673383671705,
+        "propellant_remaining_kg": 3143.775380749099,
+        "propellant_used_kg": 3856.224619250901,
+        "success": true,
+        "touchdown_horizontal_speed_mps": 0.005815914281759326,
+        "touchdown_speed_mps": 1.1966655566546345,
+        "touchdown_vertical_speed_mps": 1.196651423608652
+      },
+      "wind_inertial_mps": [
+        0.0,
+        0.0,
+        0.0
+      ]
+    }
+  },
+  "frame_convention": {
+    "body": "+z along the nominal thrust axis",
+    "inertial": "x/y horizontal, z positive upward",
+    "quaternion": "scalar-first rotation from body to inertial"
+  },
+  "model": "14-state 3D rigid-body powered-descent plant",
+  "state_definition": "r_I[3], v_I[3], q_BI[4], omega_B[3], mass[1]"
+}

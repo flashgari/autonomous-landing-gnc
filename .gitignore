@@ -46,3 +46,6 @@ outputs/*.json
 !outputs/monte_carlo_guidance_corridor_ekf_summary.json
 !outputs/monte_carlo_guidance_predictive_ekf.csv
 !outputs/monte_carlo_guidance_predictive_ekf_summary.json
+!outputs/sixdof_*.csv
+!outputs/sixdof_*_config.json
+!outputs/sixdof_verification_summary.json

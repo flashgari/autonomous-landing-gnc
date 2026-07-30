@@ -2,7 +2,13 @@
 
 ## Project Definition
 
-This project develops a reproducible planar simulation of autonomous powered descent for a reusable vertical-landing vehicle. The objective is not to replicate a proprietary launch vehicle. It is to demonstrate the engineering sequence used to mature a GNC design:
+This project develops a reproducible powered-descent GNC simulation for a
+reusable vertical-landing vehicle. The mature navigation and optimization
+campaigns use a planar plant; a separate 3D 6-DOF milestone adds quaternion
+attitude, variable mass properties, crosswind moments, four-engine wrench
+allocation, and finite-rate actuators. The objective is not to replicate a
+proprietary launch vehicle. It is to demonstrate the engineering sequence used
+to mature and bound a GNC design:
 
 ```text
 model dynamics -> close the nominal loop -> expose dispersions -> classify failures
@@ -94,9 +100,47 @@ convergence test, and four replans use deterministic corridor fallback. The
 largest rejected-iterate violation remains in the output rather than being
 filtered from the portfolio evidence.
 
+## 3D 6-DOF Rigid-Body Extension
+
+The 3D state stores inertial position and velocity, a scalar-first
+body-to-inertial quaternion, body angular velocity, and instantaneous mass.
+The translational plant rotates thrust and aerodynamic force from body to
+inertial coordinates. The rotational plant retains
+$I\dot{\omega}$, $\dot I\omega$, and
+$\omega\times(I\omega)$, while propellant fraction schedules diagonal inertia
+and the engine-to-CM lever arm. RK4 integration keeps quaternion norm error
+near machine precision without using Euler angles as propagated states.
+
+The guidance layer combines an energy-derived vertical braking reference with
+altitude-gated approach, flare, and terminal descent speeds. Horizontal
+position, velocity, and corridor feedback create the desired inertial force;
+the direction of that force defines the desired body thrust axis. Quaternion
+PD feedback commands body torque with gyroscopic compensation.
+
+Four engine-force vectors are mapped into a six-axis vehicle wrench through
+the engine-position cross-product matrices. A weighted least-squares allocator
+fits the commanded force and moment before projecting each engine onto
+nonnegative thrust, gimbal-cone, per-engine thrust, and minimum-throttle
+constraints. Static allocation residual is logged separately from the residual
+after command delay, lag, and rate limiting.
+
+The calm and `12/-6 m/s` crosswind cases pass. The high-crosswind and
+mid-descent engine-out cases are retained as different failure mechanisms.
+High wind leaves `6.16 m` terminal position error because the scheduled PD law
+has no integral or wind-feedforward channel. Engine-out raises p95 static
+allocation residual from below `0.005` to `0.301` and lands `10.16 m` from
+target because the asymmetric three-engine wrench set cannot track the
+requested force and moment. Both cases retain propellant, demonstrating why
+fuel inventory alone is not a recoverability metric.
+
 ## Verification Summary
 
-- `18` deterministic unit and system tests cover dynamics, both guidance architectures, QP transcription and feasibility, Monte Carlo reproducibility, both estimator architectures, covariance propagation, innovation rejection, sensor dropout, actuator rates, hazard geometry, and advanced scenarios.
+- `24` deterministic unit and system tests cover planar and 6-DOF dynamics,
+  quaternion conventions, variable inertia, engine allocation, both guidance
+  architectures, QP transcription and feasibility, Monte Carlo
+  reproducibility, both estimator architectures, covariance propagation,
+  innovation rejection, sensor dropout, actuator rates, hazard geometry, and
+  advanced scenarios.
 - All plotted evidence is regenerated from committed CSV/JSON outputs.
 - Monte Carlo campaigns use a fixed seed and identical dispersion draws for controlled comparisons.
 - Failure cases are retained and explained rather than removed from the presentation.
@@ -104,8 +148,12 @@ filtered from the portfolio evidence.
 
 ## What I Would Improve Next
 
-1. Extend the plant and ESKF to 6-DOF with a 15-state inertial error model, engine allocation, aerodynamic moments, inertia variation, and mass-property motion.
-2. Upgrade the convex predictor to successive convexification with mass and attitude states, trust regions, virtual controls, and measured solve-time deadlines.
+1. Promote the planar ESKF into the 6-DOF loop with a 15-state inertial error
+   model, asynchronous 3D aiding, wind estimation, and terrain-relative
+   measurements.
+2. Upgrade the convex predictor to 6-DOF successive convexification with mass
+   and attitude states, trust regions, virtual controls, engine-out
+   contingency allocation, and measured solve-time deadlines.
 3. Add terrain-relative sensing and probabilistic hazard-map uncertainty.
 4. Add timestamp jitter, delayed measurements, out-of-sequence updates, and processor timing.
 5. Build a hardware-in-the-loop version using the separate two-axis TVC test-stand project.

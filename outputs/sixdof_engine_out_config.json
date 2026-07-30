@@ -1,0 +1,119 @@
+{
+  "actuator_model": {
+    "command_delay_s": 0.08,
+    "gimbal_rate_limit_radps": 0.5,
+    "gimbal_time_constant_s": 0.1,
+    "throttle_rate_limit_per_s": 1.8,
+    "throttle_time_constant_s": 0.22
+  },
+  "attitude_control": {
+    "derivative_gain_nms": [
+      4000000.0,
+      4000000.0,
+      1400000.0
+    ],
+    "maximum_torque_nm": [
+      2000000.0,
+      2000000.0,
+      350000.0
+    ],
+    "proportional_gain_nm": [
+      5000000.0,
+      5000000.0,
+      1800000.0
+    ]
+  },
+  "dt_s": 0.05,
+  "duration_s": 55.0,
+  "environment": {
+    "air_density_kg_m3": 0.65,
+    "gravity_mps2": 9.80665,
+    "wind_inertial_mps": [
+      8.0,
+      -3.0,
+      0.0
+    ]
+  },
+  "guidance": {
+    "approach_descent_mps": 4.5,
+    "approach_gate_altitude_m": 90.0,
+    "corridor_gain": 0.07,
+    "flare_descent_mps": 2.2,
+    "flare_gate_altitude_m": 25.0,
+    "horizontal_position_gain": 0.038,
+    "horizontal_velocity_gain": 0.58,
+    "maximum_horizontal_acceleration_mps2": 3.6,
+    "maximum_tilt_rad": 0.145,
+    "maximum_vertical_acceleration_mps2": 28.0,
+    "terminal_descent_mps": 1.2,
+    "terminal_gate_altitude_m": 6.0,
+    "vertical_deceleration_mps2": 2.2,
+    "vertical_velocity_gain": 2.35,
+    "yaw_reference_rad": 0.0
+  },
+  "initial_state": {
+    "angular_velocity_body_radps": [
+      0.0017453292519943296,
+      -0.0013962634015954637,
+      0.0010471975511965976
+    ],
+    "mass_kg": 25000.0,
+    "position_inertial_m": [
+      18.0,
+      -12.0,
+      720.0
+    ],
+    "quaternion_body_to_inertial": [
+      0.9997967163092055,
+      0.005082670073043831,
+      0.008816463491179085,
+      0.017405817813806623
+    ],
+    "time_s": 0.0,
+    "velocity_inertial_mps": [
+      -2.5,
+      1.5,
+      -58.0
+    ]
+  },
+  "scenario": {
+    "engine_failure_time_s": 12.0,
+    "failed_engine_index": 0,
+    "name": "engine_out"
+  },
+  "target_inertial_m": [
+    0.0,
+    0.0,
+    0.0
+  ],
+  "vehicle": {
+    "center_of_pressure_offset_m": 4.0,
+    "drag_coefficient": 0.55,
+    "dry_engine_arm_m": 15.5,
+    "dry_inertia_diag_kg_m2": [
+      1180000.0,
+      1180000.0,
+      225000.0
+    ],
+    "dry_mass_kg": 18000.0,
+    "engine_cluster_radius_m": 1.8,
+    "maximum_gimbal_rad": 0.2,
+    "maximum_total_thrust_n": 760000.0,
+    "minimum_engine_throttle": 0.2,
+    "normal_force_slope": 1.8,
+    "propellant_mass_kg": 7000.0,
+    "reference_area_m2": 10.0,
+    "rotational_damping_nms": [
+      200000.0,
+      200000.0,
+      120000.0
+    ],
+    "specific_impulse_s": 282.0,
+    "wet_engine_arm_m": 14.0,
+    "wet_inertia_diag_kg_m2": [
+      1700000.0,
+      1700000.0,
+      290000.0
+    ]
+  }
+}

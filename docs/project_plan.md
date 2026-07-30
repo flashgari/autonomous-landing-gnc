@@ -82,3 +82,27 @@ Before navigation modeling, the project added a guidance-improvement comparison:
 - [x] matched-seed 200-case corridor/predictive comparison
 - [x] fine-step reachability sweep and retained failure boundary
 - [x] upper-division formulation, active-constraint, and result interpretation
+
+## Week 9A 3D 6-DOF Truth Plant
+
+- [x] 14-component position, velocity, quaternion, body-rate, and mass state
+- [x] nonlinear body-to-inertial force transformation
+- [x] variable-inertia Euler equation including `I_dot omega`
+- [x] crosswind drag, normal force, and CP/CM aerodynamic moment
+- [x] energy-based vertical guidance with approach, flare, and terminal gates
+- [x] quaternion attitude-error feedback with gyroscopic compensation
+- [x] four-engine six-axis weighted wrench allocation
+- [x] command delay, lag, rate limits, and engine-failure injection
+- [x] calm, crosswind, high-wind, and mid-descent engine-out verification cases
+- [x] strict separation of static allocation and actuator-path residuals
+- [x] recruiter-facing SVG evidence, GIF preview, and interactive 3D animation
+- [x] upper-division dynamics, allocation, failure-mechanism, and limitations writeup
+
+## Week 9B 6-DOF Optimal Guidance
+
+- [ ] promote the planar constrained predictor into the 6-DOF loop
+- [ ] add mass and attitude states using successive convexification or NMPC
+- [ ] add trust regions, virtual controls, and nonlinear rollout checks
+- [ ] couple a 15-state inertial error model and wind estimator to guidance
+- [ ] add engine-out contingency constraints and measured solve-time deadlines
+- [ ] run matched-seed 3D Monte Carlo dispersion campaigns

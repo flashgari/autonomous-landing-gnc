@@ -1,62 +1,87 @@
 # Autonomous Powered-Descent GNC Simulator
 
-A planar reusable-booster landing simulation that closes the loop through
-IMU-driven error-state estimation, constrained predictive guidance, attitude
-control, throttle/TVC actuator dynamics, fault injection, hazard-relative
-targeting, and Monte Carlo verification.
+A powered-descent GNC development project with two explicit fidelity tiers:
+a mature planar stack for inertial navigation, constrained guidance, faults,
+hazard diversion, and Monte Carlo verification; and a 3D 6-DOF rigid-body
+plant with quaternion attitude, variable mass properties, crosswind
+aerodynamics, four-engine allocation, and finite-bandwidth actuators.
 
 ## Start With the Flight
 
-**[Open the interactive hazard-relative landing animation](media/hazard_divert_landing_animation.html)**
+![3D 6-DOF crosswind landing preview](media/sixdof_landing_preview.gif)
 
-The animation is the quickest way to inspect the closed-loop sequence. Blue is the integrated vehicle truth state, purple is the navigation estimate used by guidance, orange is the applied thrust vector, red is the excluded debris interval, and green is the selected landing target.
+**[Open the interactive 3D 6-DOF flight](media/sixdof_landing_animation.html)** to switch among calm, crosswind, high-wind, and engine-out cases while inspecting body axes, quaternion attitude, all four engine commands, and live wrench residuals.
 
-![Hazard-relative autonomous landing preview](media/hazard_divert_landing_preview.gif)
+The GIF is committed specifically so the flight is visible on the GitHub front
+page. The HTML version is generated from the same CSV outputs and adds
+interactive playback; it is not a separately authored animation.
 
 ### How to Read the Flight
 
-The S-shaped ground track is a deliberate accelerate-and-brake maneuver, not controller wandering. The vehicle begins at `x = 18 m` and retargets to `x = 12 m` because the original `x = 0 m` site lies inside the modeled `[-4, 4] m` debris zone. Initial tilt generates lateral acceleration,
+The preview shows the passing `12/-6 m/s` crosswind case. The inertial
+trajectory begins at `[18, -12, 720] m` with a `-58 m/s` descent rate. The
+colored triad is the body frame reconstructed from the integrated quaternion;
+blue is body `+z` and the commanded thrust axis. The wind changes
+air-relative velocity, so the body experiences both drag and a
+center-of-pressure normal force. Guidance redirects thrust to oppose that
+load while also removing the initial vertical kinetic energy.
 
 $$
-a_x=\frac{T\sin\theta}{m},
+\dot{\mathbf r}_I=\mathbf v_I,\qquad
+m\dot{\mathbf v}_I=R_{BI}(\mathbf q)
+(\mathbf F_{T,B}+\mathbf F_{A,B})+m\mathbf g_I
 $$
 
-and accumulates the required lateral impulse while time-to-go is still large. The controller later reverses the sign of lateral acceleration to remove horizontal velocity before touchdown. This produces the second bend in the trajectory and prevents the vehicle from simply flying through the selected target.
+The vertical reference starts from the stopping-distance energy relation
+`|v_z,ref| = sqrt(2 a_b z)`, then passes through approach, flare, and terminal
+descent gates. This avoids a low-altitude hover: hovering spends propellant
+against gravity without reducing altitude or closing the terminal condition.
+The crosswind case lands in `41.6 s` with `2.87 m` horizontal error,
+`1.20 m/s` vertical speed, `1.68 deg` maximum tilt, and `3149 kg` of modeled
+propellant remaining.
 
-The maneuver cannot be interpreted independently of vertical dynamics. The same thrust vector supplies both axes:
+The four-engine allocator fits a commanded six-axis wrench. With body `+z`
+along thrust, axial-thrust imbalance and gimbaled lateral force generate
+body-`x/y` moments through the radial and longitudinal lever arms.
+Differential tangential gimbal force generates the body-`z` roll moment. The
+passing crosswind case has p95 static allocation residual `0.0032`; the larger
+actuator-path residual records command delay, lag, and rate limiting.
 
-$$
-a_z=\frac{T\cos\theta}{m}-g.
-$$
-
-Every lateral correction therefore reduces instantaneous vertical thrust projection. Corridor guidance schedules most crossrange correction at higher altitude, then contracts the allowable tilt as touchdown approaches so vertical kinetic-energy removal takes priority. The final near-vertical segment is the result of that control allocation.
-
-The purple estimate is jagged because the estimator receives discrete noisy measurements and applies innovation corrections. Those jumps are not physical zigzags by the vehicle; the blue truth trajectory remains continuous under numerical integration. Navigation error matters because guidance acts on the estimate, so estimation bias becomes a commanded acceleration error before actuator lag and rate limits filter the response.
-
-The verified hazard-divert case lands at `x = 9.47 m`, which is `2.53 m` short of the `12 m` target but inside the `|e_x| < 3 m` terminal corridor. Touchdown speed is `1.09 m/s`, lateral speed is `0.34 m/s`, and geometric clearance from the debris-zone edge is `5.47 m`.
+The retained failures are part of the evidence. The high-wind case lands
+`6.16 m` from target because the scheduled PD law has no integral or explicit
+wind-feedforward channel, leaving steady disturbance error. The engine-out
+case lands `10.16 m` from target because removing one engine makes the
+attainable wrench set asymmetric; its p95 static residual rises to `0.301`.
+Those are different physical failure mechanisms and are reported separately.
 
 ## Engineering Result
 
-The project begins with a nominal powered landing and then deliberately removes ideal assumptions. The final software path is:
+The project begins with a nominal planar powered landing, removes ideal
+navigation and actuation assumptions, and then adds a separate 3D truth-plant
+milestone:
 
 ```mermaid
-flowchart LR
-    ENV["Vehicle and environment truth"] --> SENS["Biased, noisy sensors"]
-    SENS --> EST["IMU error-state EKF and aiding updates"]
-    EST --> HAZ["Safe-target selection"]
-    HAZ --> GUID["Constrained predictive guidance"]
-    GUID --> TERM["160 m terminal handoff"]
-    TERM --> CTRL["Attitude and TVC control"]
-    CTRL --> ACT["Delay, lag, slew, deadband, saturation"]
-    ACT --> DYN["Planar rigid-body dynamics"]
-    DYN --> ENV
-    DYN --> VER["Touchdown and robustness verification"]
+flowchart TB
+    PLANAR["Planar nonlinear truth plant"] --> SENS["IMU and asynchronous aiding"]
+    SENS --> EST["Error-state EKF"]
+    EST --> GUID["Constrained predictive guidance"]
+    GUID --> ACT["Throttle/TVC command path"]
+    ACT --> PLANAR
+    PLANAR --> MC["Fault, hazard, and Monte Carlo verification"]
+    SIX["3D 6-DOF truth plant"] --> QCTRL["Quaternion attitude control"]
+    QCTRL --> ALLOC["Four-engine wrench allocation"]
+    ALLOC --> SIX
+    SIX --> BOUND["Crosswind and engine-out boundary tests"]
 ```
 
 Headline results:
 
 | Verification case | Result | Interpretation |
 | --- | ---: | --- |
+| 3D calm nominal | pass | `0.24 m` horizontal error with machine-precision quaternion normalization |
+| 3D `12/-6 m/s` crosswind | pass | coupled aerodynamic disturbance is rejected inside the `3 m` footprint |
+| 3D `18/-10 m/s` crosswind | fail | scheduled PD guidance retains steady wind-induced position bias |
+| 3D engine 1 out at `12 s` | fail | asymmetric attainable wrench set produces `10.16 m` footprint error |
 | baseline guidance Monte Carlo | `46.5%` success | nominal tuning does not provide robust terminal margins |
 | corridor guidance Monte Carlo | `92.0%` success | earlier lateral correction protects late vertical braking authority |
 | corridor + actuators, truth feedback | `95.0%` success | finite actuator dynamics remain compatible with the guidance schedule |
@@ -75,7 +100,36 @@ These are simulation results under stated assumptions, not flight-vehicle perfor
 
 ## Flight Physics
 
-The planar state is:
+The 3D plant stores 14 state components:
+
+$$
+\mathbf{x}_{6DOF}=
+[\mathbf r_I,\;\mathbf v_I,\;\mathbf q_{BI},\;
+\boldsymbol\omega_B,\;m]^T
+$$
+
+The quaternion has one unit-norm constraint, so it represents three
+independent attitude coordinates without integrating Euler-angle
+singularities. Rotational motion retains changing angular momentum:
+
+$$
+I_B\dot{\boldsymbol\omega}_B+
+\dot I_B\boldsymbol\omega_B+
+\boldsymbol\omega_B\times(I_B\boldsymbol\omega_B)
+=\boldsymbol\tau_{TVC,B}+\boldsymbol\tau_{A,B}-D\boldsymbol\omega_B.
+$$
+
+Propellant fraction schedules the diagonal inertia and the engine-to-CM arm.
+The RK4 trajectory maintains maximum quaternion norm error near `2.2e-16`.
+Crosswind loading is computed from air-relative velocity and dynamic pressure,
+then the center-of-pressure offset maps normal force into an aerodynamic
+moment.
+
+The full derivation, allocation geometry, actuator equations, case-by-case
+result interpretation, and limitations are in
+[3D 6-DOF Landing Dynamics, Control, and Verification](docs/six_dof_landing_dynamics_and_control.md).
+
+The mature navigation and predictive-guidance campaigns use the planar state:
 
 $$
 \mathbf{x}=[x,\;z,\;v_x,\;v_z,\;\theta,\;\omega,\;m]^T
@@ -121,9 +175,37 @@ $$
 
 The alpha-beta baseline predicts between common `0.10 s` measurement updates using fixed gains. The ESKF instead integrates body-frame specific force and gyro rate, estimates two accelerometer biases and one gyro bias, propagates an eight-state covariance, and applies asynchronous GPS, radar-altimeter, and attitude updates. Its error becomes a guidance error, which becomes an attitude command, which is filtered by actuator delay and slew limits before changing the true trajectory.
 
-The complete derivation and result interpretation are in [Constrained Predictive Guidance](docs/constrained_predictive_guidance.md), [Flight Physics](docs/flight_physics.md), [Error-State EKF and Inertial Navigation](docs/error_state_ekf.md), [Alpha-Beta Navigation Baseline](docs/navigation_estimation.md), and [Actuator Dynamics and Fault Response](docs/actuator_fault_response.md).
+The complete planar derivation and result interpretation are in [Constrained Predictive Guidance](docs/constrained_predictive_guidance.md), [Flight Physics](docs/flight_physics.md), [Error-State EKF and Inertial Navigation](docs/error_state_ekf.md), [Alpha-Beta Navigation Baseline](docs/navigation_estimation.md), and [Actuator Dynamics and Fault Response](docs/actuator_fault_response.md).
 
 ## Visual Evidence
+
+### 3D Rigid-Body and Engine-Allocation Verification
+
+![3D 6-DOF landing verification](figures/sixdof_landing_verification.svg)
+
+Panel A is the inertial `x/y` ground track; it verifies that both horizontal
+translations are propagated independently rather than inferred from a planar
+downrange coordinate. Panel B shows the energy-based braking law and the
+altitude-gated approach, flare, and terminal phases. Panel C is quaternion-
+derived body-axis tilt, not an independently integrated display variable.
+All cases remain below the `12 deg` attitude criterion, including the two
+footprint failures.
+
+Panel D distinguishes static allocation from actuator tracking. The nominal
+and crosswind allocators fit the requested six-axis wrench with p95 normalized
+residual below `0.005`. The actuator residual is larger because the realized
+wrench follows command delay, first-order engine/gimbal dynamics, and rate
+limits. In the engine-out case the static residual itself rises to `0.301`,
+which shows that the requested wrench is outside the reduced three-engine
+attainable set; it is not merely delayed.
+
+Panel E prevents a visually smooth trajectory from being mistaken for a
+successful landing. The high-wind vehicle reaches the ground slowly and with
+small tilt, yet fails position. That combination points to steady disturbance
+rejection and guidance scheduling, not insufficient instantaneous thrust. The
+engine-out case instead combines high allocation residual, increased tilt,
+horizontal touchdown speed, and a `10.16 m` miss, identifying a control-
+allocation authority failure.
 
 ### Constrained Predictive Guidance
 
@@ -238,6 +320,10 @@ NumPy supports the ESKF matrix operations. Pillow is used only to regenerate the
 ```bash
 python3 -m pip install -r requirements.txt
 export PYTHONPATH="$PWD"
+python3 scripts/run_sixdof_landing.py
+python3 scripts/plot_sixdof_landing.py
+python3 scripts/make_sixdof_landing_animation.py
+python3 scripts/make_sixdof_landing_gif.py
 python3 scripts/run_nominal_landing.py
 python3 scripts/plot_nominal_landing.py
 python3 scripts/make_landing_animation.py
@@ -263,7 +349,7 @@ python3 -m unittest discover tests
 ## Repository Map
 
 ```text
-landing_gnc/   dynamics, constrained/corridor guidance, navigation, actuators, hazards
+landing_gnc/   planar and 6-DOF dynamics, guidance, control, navigation, allocation
 scripts/       reproducible campaigns, SVG plots, and HTML animation generators
 docs/          equations, assumptions, physical interpretation, and limitations
 outputs/       generated trajectory, Monte Carlo, fault, and feasibility data
@@ -274,14 +360,19 @@ tests/         deterministic unit and system-level verification
 
 ## Model Boundaries
 
-The simulator is intentionally planar and does not claim flight fidelity. It omits 6-DOF translation/rotation, a 15-state 3D inertial error model, slosh, flexible modes, multi-engine allocation, terrain-relative image processing, landing-leg contact, plume-ground interaction, and onboard timing/quantization. These omissions are recorded because engineering credibility depends on knowing what the model cannot establish.
+The repository contains two model tiers, and they are not presented as one
+flight-ready stack. The planar tier contains the ESKF, constrained predictor,
+hazard logic, and large Monte Carlo campaigns. The 3D tier contains the
+nonlinear rigid body, quaternion controller, crosswind aerodynamics, and
+four-engine actuator allocation. The planar ESKF and predictive planner have
+not yet been promoted into the 3D loop.
 
 The constrained predictor is deliberately an acceleration-space convex
 relaxation. It does not propagate attitude, mass, or aerodynamics inside the
 QP, and its exact minimum-throttle set is handled by a hybrid supervisor
-rather than mixed-integer optimization. The strongest next technical
-extension is 6-DOF successive convexification or nonlinear MPC with mass and
-attitude states, trust regions, virtual controls, engine allocation, and
-measured solver timing. Those additions would address the remaining pad
-misses without pretending that another estimator label can remove a physical
-reachability limit.
+rather than mixed-integer optimization. The 3D tier omits a 15-state inertial
+error model, terrain-relative image processing, contact dynamics, plume-
+ground interaction, slosh, flexible modes, detailed aerodynamic tables, and
+onboard timing/quantization. The strongest next extension is 6-DOF successive
+convexification or nonlinear MPC with trust regions, virtual controls, wind
+estimation, contingency allocation, and measured solve-time deadlines.
